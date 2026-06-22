@@ -75,7 +75,7 @@ function ServiceIcon({ type }) {
 
 export default function ServicesSection() {
   return (
-    <section className="relative w-full bg-[#020617] py-20 sm:py-32 overflow-hidden">
+    <section id="services" className="relative w-full bg-[#020617] py-20 sm:py-32 overflow-hidden">
       {/* Decorative gradient background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-40 left-20 w-96 h-96 bg-[#6366F1]/5 rounded-full blur-3xl"></div>

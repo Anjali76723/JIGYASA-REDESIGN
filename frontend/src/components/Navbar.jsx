@@ -3,157 +3,379 @@
 import { useEffect, useState } from 'react'
 
 const navLinks = [
-  { label: 'Services', href: '#services' },
-  { label: 'Work', href: '#work' },
-  { label: 'Process', href: '#process' },
+  { label: 'Services',   href: '#services'   },
+  { label: 'Work',       href: '#work'       },
+  { label: 'Process',    href: '#process'    },
   { label: 'Industries', href: '#industries' },
-  { label: 'About', href: '#about' },
+  { label: 'About',      href: '#about'      },
+  { label: 'Contact',    href: '#contact'    },
 ]
 
-export default function Navbar() {
-  const [open, setOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const [hash, setHash] = useState(typeof window !== 'undefined' ? window.location.hash : '')
+function smoothScroll(href, cb) {
+  const el = document.getElementById(href.replace('#', ''))
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' })
+    window.history.replaceState(null, '', href)
+  }
+  cb?.()
+}
 
+/* ══════════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════════ */
+export default function Navbar() {
+  const [open,       setOpen]       = useState(false)
+  const [scrolled,   setScrolled]   = useState(false)
+  const [activeHash, setActiveHash] = useState('')
+
+  /* scroll state */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 6)
-    const onHash = () => setHash(window.location.hash)
-    window.addEventListener('scroll', onScroll)
-    window.addEventListener('hashchange', onHash)
-    return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('hashchange', onHash)
-    }
+    const fn = () => setScrolled(window.scrollY > 12)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
   }, [])
 
+  /* active section — IntersectionObserver */
+  useEffect(() => {
+    const ids     = navLinks.map(l => l.href.replace('#', ''))
+    const visible = {}
+    const obs     = []
+
+    const pick = () => {
+      for (const id of ids) {
+        if (visible[id]) { setActiveHash('#' + id); return }
+      }
+    }
+
+    ids.forEach(id => {
+      const el = document.getElementById(id)
+      if (!el) return
+      const o = new IntersectionObserver(
+        ([e]) => { visible[id] = e.isIntersecting; pick() },
+        { rootMargin: '-30% 0px -60% 0px', threshold: 0 }
+      )
+      o.observe(el)
+      obs.push(o)
+    })
+
+    return () => obs.forEach(o => o.disconnect())
+  }, [])
+
+  /* lock scroll when drawer open */
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
   }, [open])
+
+  const handleClick = (e, href) => {
+    e.preventDefault()
+    smoothScroll(href, () => setOpen(false))
+    setActiveHash(href)
+  }
+
+  const bg = scrolled
+    ? 'bg-[rgba(7,16,36,0.80)] backdrop-blur-[30px] shadow-[0_10px_40px_rgba(0,0,0,.32),0_20px_60px_rgba(99,102,241,.10)]'
+    : 'bg-[rgba(7,16,36,0.55)] backdrop-blur-[24px] shadow-[0_10px_40px_rgba(0,0,0,.25),0_20px_60px_rgba(99,102,241,.08)]'
+
+  const h = scrolled ? 'h-16' : 'h-[72px]'
 
   return (
     <>
       <nav
-        aria-label="Main"
-        className={`fixed top-6 left-1/2 z-50 w-[calc(100%-48px)] max-w-7xl -translate-x-1/2 rounded-3xl transition-all duration-300 ${
-          scrolled ? 'backdrop-blur-xl bg-[#071024]/60 border border-white/10 shadow-[0_20px_40px_rgba(34,211,238,0.04),0_8px_20px_rgba(99,102,241,0.06)]' : 'bg-[#071024]/50 backdrop-blur-xl border border-white/8'
-        }`}
+        aria-label="Main navigation"
+        className={`
+          fixed top-6 left-1/2 -translate-x-1/2 z-[100]
+          w-[calc(100%-48px)] max-w-[1440px]
+          rounded-[999px]
+          border border-[rgba(255,255,255,.08)]
+          transition-all duration-300
+          ${bg}
+        `}
       >
-        <div className="mx-auto px-4 sm:px-6">
-          <div className="flex h-20 items-center justify-between gap-6">
-            {/* Logo */}
-            <a href="/" className="flex items-baseline gap-3 flex-shrink-0" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
-              <span className="text-xl font-extrabold text-white tracking-tight">JIGYASA</span>
-              <span className="text-sm font-medium text-cyan-300/90 mt-1">TECHNOLOGIES</span>
-            </a>
+        <div className={`flex items-center justify-between px-5 sm:px-7 transition-all duration-300 ${h}`}>
 
-            {/* Nav - center */}
-            <div className="hidden lg:flex items-center justify-center flex-1">
-              <ul className="flex items-center gap-8">
-                {navLinks.map((l) => {
-                  const active = hash === l.href
-                  return (
-                    <li key={l.label} className="group">
-                      <a
-                        href={l.href}
-                        className={`inline-flex flex-col items-center gap-1 transform transition-transform duration-200 ${
-                          active ? 'text-white' : 'text-[#D1D9E8] hover:text-white'
-                        }`}
-                        aria-current={active ? 'page' : undefined}
-                      >
-                        <span className="text-sm font-medium" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>{l.label}</span>
-                        <span
-                          className="block h-0.5 bg-gradient-to-r from-[#22D3EE] to-[#6366F1] transition-all duration-300"
-                          style={{ width: active ? '56%' : '0%' }}
-                        />
-                      </a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-
-            {/* CTA */}
-            <div className="hidden md:flex items-center gap-4">
-              <button className="px-4 py-2 rounded-lg text-sm font-medium text-white/90 bg-white/5 border border-white/10 hover:bg-white/10 transform transition-all duration-200" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
-                Schedule Call
-              </button>
-
-              <button className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-[0_8px_32px_rgba(99,102,241,0.18)] hover:shadow-[0_10px_40px_rgba(34,211,238,0.12)] transform transition-all duration-200 hover:-translate-y-1" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
-                Start Project
-              </button>
-            </div>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setOpen((s) => !s)}
-              aria-label="Open menu"
-              className="lg:hidden flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white/90"
+          {/* ── Logo ── */}
+          <a
+            href="/"
+            className="flex items-baseline gap-[7px] flex-shrink-0 group"
+            style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
+          >
+            <span className="text-[18px] font-[800] tracking-tight text-white transition-all duration-300 group-hover:drop-shadow-[0_0_14px_rgba(34,211,238,.5)]">
+              JIGYASA
+            </span>
+            <span
+              className="text-[13px] font-[500] text-[#22D3EE] transition-all duration-300 group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,.6)]"
+              style={{ letterSpacing: '.08em' }}
             >
-              <Hamburger open={open} />
+              TECHNOLOGIES
+            </span>
+          </a>
+
+          {/* ── Center nav links (desktop) ── */}
+          <ul className="hidden lg:flex items-center gap-1" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
+            {navLinks.map(l => {
+              const active = activeHash === l.href
+              return (
+                <li key={l.href}>
+                  <a
+                    href={l.href}
+                    onClick={e => handleClick(e, l.href)}
+                    aria-current={active ? 'page' : undefined}
+                    className={`
+                      relative inline-flex items-center
+                      text-[15px] font-[500]
+                      transition-all duration-300
+                      select-none rounded-[999px]
+                      px-[18px] py-[10px]
+                      ${active
+                        ? 'text-white'
+                        : 'text-[#D1D9E8] hover:text-white hover:-translate-y-[2px]'
+                      }
+                    `}
+                    style={active ? {
+                      background:     'rgba(255,255,255,.08)',
+                      border:         '1px solid rgba(255,255,255,.08)',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow:      '0 0 30px rgba(99,102,241,.15)',
+                    } : {}}
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+
+          {/* ── Right CTAs (desktop) ── */}
+          <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+            {/* Schedule Call — glass */}
+            <button
+              className="
+                px-5 py-[10px] rounded-[999px]
+                text-[14px] font-[500] text-white
+                border border-[rgba(255,255,255,.08)]
+                transition-all duration-300
+                hover:-translate-y-[2px]
+                active:scale-[.98]
+              "
+              style={{
+                fontFamily: 'Space Grotesk, Inter, system-ui',
+                background: 'rgba(255,255,255,.04)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,.04)'}
+            >
+              Schedule Call
+            </button>
+
+            {/* Start Project — gradient */}
+            <button
+              onClick={e => { e.preventDefault(); smoothScroll('#contact') }}
+              className="
+                px-6 py-[10px] rounded-[999px]
+                text-[14px] font-[600] text-white
+                bg-gradient-to-r from-[#6366F1] to-[#22D3EE]
+                transition-all duration-300
+                hover:-translate-y-[3px] hover:scale-[1.02]
+                hover:shadow-[0_0_40px_rgba(34,211,238,.20)]
+                active:scale-[.98]
+              "
+              style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
+            >
+              Start Project
             </button>
           </div>
+
+          {/* ── Mobile hamburger ── */}
+          <button
+            onClick={() => setOpen(s => !s)}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            className="
+              lg:hidden flex h-9 w-9 items-center justify-center
+              rounded-full border border-[rgba(255,255,255,.08)]
+              text-white/75 transition-colors duration-200
+              hover:text-white hover:border-white/20
+            "
+            style={{ background: 'rgba(255,255,255,.04)' }}
+          >
+            <HamburgerIcon open={open} />
+          </button>
+
         </div>
       </nav>
 
-      {/* Mobile menu */}
-      <MobileMenu open={open} onClose={() => setOpen(false)} navLinks={navLinks} />
+      {/* Mobile drawer */}
+      <MobileDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        navLinks={navLinks}
+        activeHash={activeHash}
+        onNavClick={handleClick}
+      />
 
-      {/* spacer to preserve layout */}
-      <div className="h-6 lg:h-12" />
+      {/* Layout spacer */}
+      <div className="h-[108px]" aria-hidden />
     </>
   )
 }
 
-function Hamburger({ open }) {
+/* ══════════════════════════════════════════════
+   HAMBURGER
+══════════════════════════════════════════════ */
+function HamburgerIcon({ open }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <g className="transform transition-transform duration-300" style={{ transformOrigin: 'center' }}>
-        <rect x="3" y="6" width="18" height="2" rx="1" fill="currentColor" className={`transition-transform duration-300 ${open ? 'translate-y-[6px] rotate-45' : ''}`} />
-        <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor" className={`transition-opacity duration-200 ${open ? 'opacity-0' : 'opacity-100'}`} />
-        <rect x="3" y="16" width="18" height="2" rx="1" fill="currentColor" className={`transition-transform duration-300 ${open ? 'translate-y-[-6px] -rotate-45' : ''}`} />
-      </g>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect
+        x="1" y="3" width="14" height="1.5" rx=".75" fill="currentColor"
+        className="transition-all duration-300 origin-center"
+        style={{ transform: open ? 'rotate(45deg) translateY(4px)' : 'none' }}
+      />
+      <rect
+        x="1" y="7.25" width="14" height="1.5" rx=".75" fill="currentColor"
+        className="transition-all duration-200"
+        style={{ opacity: open ? 0 : 1 }}
+      />
+      <rect
+        x="1" y="11.5" width="14" height="1.5" rx=".75" fill="currentColor"
+        className="transition-all duration-300 origin-center"
+        style={{ transform: open ? 'rotate(-45deg) translateY(-4px)' : 'none' }}
+      />
     </svg>
   )
 }
 
-function MobileMenu({ open, onClose, navLinks }) {
+/* ══════════════════════════════════════════════
+   MOBILE DRAWER
+══════════════════════════════════════════════ */
+function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick }) {
   useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
+    const fn = e => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', fn)
+    return () => window.removeEventListener('keydown', fn)
   }, [onClose])
 
   return (
-    <div className={`fixed inset-0 z-40 lg:hidden pointer-events-auto transition-all duration-300 ${open ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
-      <div className={`absolute inset-0 bg-[#020617]/60 backdrop-blur-sm`} onClick={onClose} />
+    <div
+      className={`fixed inset-0 z-[90] lg:hidden transition-all duration-300 ${open ? 'visible' : 'invisible'}`}
+      aria-hidden={!open}
+    >
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className={`absolute inset-0 bg-[#020617]/70 backdrop-blur-sm transition-opacity duration-300 ${open ? 'opacity-100' : 'opacity-0'}`}
+      />
 
-      <div className={`absolute top-0 left-0 right-0 h-full bg-[#071024]/80 backdrop-blur-xl border-t border-white/10 p-6 overflow-auto transform transition-transform duration-300 ${open ? 'translate-y-0' : '-translate-y-full'}`}>
-        <div className="flex items-center justify-between">
-          <div style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
-            <div className="text-xl font-extrabold text-white">JIGYASA <span className="text-cyan-300 text-sm font-medium">TECHNOLOGIES</span></div>
-          </div>
-          <button onClick={onClose} className="h-10 w-10 grid place-items-center rounded-lg bg-white/5 border border-white/10">
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      {/* Panel */}
+      <div
+        className={`
+          absolute inset-x-0 top-0 min-h-screen
+          flex flex-col
+          bg-[#020617]
+          px-6 pt-6 pb-12
+          transition-transform duration-300
+          overflow-y-auto
+          ${open ? 'translate-y-0' : '-translate-y-full'}
+        `}
+      >
+        {/* Header row */}
+        <div className="flex items-center justify-between mb-10">
+          <a
+            href="/"
+            onClick={onClose}
+            className="flex items-baseline gap-[7px]"
+            style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
+          >
+            <span className="text-[18px] font-[800] tracking-tight text-white">JIGYASA</span>
+            <span className="text-[13px] font-[500] text-[#22D3EE]" style={{ letterSpacing: '.08em' }}>
+              TECHNOLOGIES
+            </span>
+          </a>
+
+          <button
+            onClick={onClose}
+            aria-label="Close menu"
+            className="h-9 w-9 grid place-items-center rounded-full border border-white/10 text-white/60 hover:text-white transition-colors"
+            style={{ background: 'rgba(255,255,255,.04)' }}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <nav className="mt-8">
-          <ul className="space-y-4">
-            {navLinks.map((l) => (
-              <li key={l.href}>
-                <a href={l.href} onClick={onClose} className="block text-lg font-medium text-[#D1D9E8] py-3 px-2 rounded-lg hover:bg-white/5">
-                  {l.label}
-                </a>
-              </li>
-            ))}
+        {/* Nav links */}
+        <nav className="flex-1">
+          <ul className="flex flex-col">
+            {navLinks.map((l, i) => {
+              const active = activeHash === l.href
+              return (
+                <li
+                  key={l.href}
+                  style={{
+                    opacity:    open ? 1 : 0,
+                    transform:  open ? 'translateY(0)' : 'translateY(-10px)',
+                    transition: `opacity 280ms ${i * 45}ms, transform 280ms ${i * 45}ms`,
+                  }}
+                >
+                  <a
+                    href={l.href}
+                    onClick={e => onNavClick(e, l.href)}
+                    className="
+                      flex items-center justify-between
+                      py-5 border-b border-white/[.04]
+                      transition-all duration-200
+                      group
+                    "
+                    style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
+                  >
+                    <span
+                      className={`text-[20px] font-[600] transition-all duration-200 ${
+                        active
+                          ? 'bg-gradient-to-r from-[#6366F1] to-[#22D3EE] bg-clip-text text-transparent'
+                          : 'text-white group-hover:text-white/80'
+                      }`}
+                    >
+                      {l.label}
+                    </span>
+
+                    <svg
+                      className={`h-4 w-4 transition-all duration-200 group-hover:translate-x-1 ${
+                        active ? 'text-cyan-400' : 'text-slate-600 group-hover:text-slate-400'
+                      }`}
+                      fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
-        <div className="mt-8 space-y-3">
-          <button onClick={onClose} className="w-full px-6 py-3 rounded-lg border border-white/20 bg-white/5 text-base font-medium text-white">Schedule Call</button>
-          <button onClick={onClose} className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-[#6366F1] to-[#22D3EE] text-base font-semibold text-white shadow-lg">Start Project</button>
+        {/* Divider */}
+        <div className="my-8 h-px w-full bg-gradient-to-r from-transparent via-white/8 to-transparent" />
+
+        {/* Mobile CTA */}
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={onClose}
+            className="w-full h-14 rounded-[999px] text-[15px] font-[500] text-white border border-white/10 transition-all duration-200 hover:border-white/20"
+            style={{ background: 'rgba(255,255,255,.04)', fontFamily: 'Space Grotesk, Inter, system-ui' }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,.04)'}
+          >
+            Schedule Call
+          </button>
+
+          <button
+            onClick={() => { onClose(); smoothScroll('#contact') }}
+            className="w-full h-14 rounded-[999px] text-[15px] font-[600] text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] transition-all duration-200 hover:shadow-[0_0_40px_rgba(34,211,238,.20)] active:scale-[.99]"
+            style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
+          >
+            Start Project
+          </button>
         </div>
       </div>
     </div>

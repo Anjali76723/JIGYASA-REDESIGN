@@ -50,7 +50,7 @@ const steps = [
 
 export default function ProcessSection() {
   return (
-    <section className="relative overflow-hidden py-16" style={{ backgroundColor: '#020617' }}>
+    <section id="process" className="relative overflow-hidden py-16" style={{ backgroundColor: '#020617' }}>
       {/* Floating gradients */}
       <div className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full bg-gradient-to-tr from-cyan-500/20 to-indigo-500/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 -bottom-24 h-96 w-96 rounded-full bg-gradient-to-bl from-indigo-600/10 to-cyan-400/10 blur-3xl" />

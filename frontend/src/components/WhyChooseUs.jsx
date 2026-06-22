@@ -47,7 +47,7 @@ const features = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="relative py-16" style={{ backgroundColor: '#020617' }}>
+    <section id="about" className="relative py-16" style={{ backgroundColor: '#020617' }}>
       {/* Animated background glows */}
       <div className="pointer-events-none absolute -left-24 -top-8 h-64 w-64 rounded-full bg-gradient-to-tr from-cyan-500/20 to-indigo-500/10 blur-3xl" />
       <div className="pointer-events-none absolute right-8 -bottom-16 h-80 w-80 rounded-full bg-gradient-to-bl from-indigo-600/10 to-cyan-400/8 blur-3xl" />

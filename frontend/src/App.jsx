@@ -6,8 +6,11 @@ import ProcessSection from "./components/ProcessSection";
 import TestimonialsSection from "./components/TestimonialsSection";
 import WhyChooseUs from "./components/WhyChooseUs";
 import IndustriesSection from "./components/IndustriesSection";
+import WorkSection from "./components/WorkSection";
+import AboutSection from "./components/AboutSection";
+import ContactSection from "./components/ContactSection";
 import CallToAction from "./components/CallToAction";
-
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -20,8 +23,11 @@ function App() {
       <TestimonialsSection />
       <WhyChooseUs />
       <IndustriesSection />
+      <WorkSection />
+      <AboutSection />
+      <ContactSection />
       <CallToAction />
-   
+      <Footer />
     </div>
   );
 }
