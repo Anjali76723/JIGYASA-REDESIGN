@@ -1,206 +1,489 @@
+import React, { useEffect, useRef, useState, Suspense, lazy } from 'react'
+import { useTheme } from '../../context/ThemeContext'
+
+const AuroraBackground = lazy(() => import('./AuroraBackground'))
+
+/* ─────────────────────────────────────────────────────────
+   KEYFRAMES (injected once at module level)
+───────────────────────────────────────────────────────── */
+const KEYFRAMES = `
+  @keyframes heroDotPulse {
+    0%,100% { opacity:1;  transform:scale(1);   }
+    50%      { opacity:.4; transform:scale(1.6); }
+  }
+  /* #4 — dashboard float: -10px ↔ +10px, 12s */
+  @keyframes dashFloat {
+    0%   { transform: rotate(-2deg) translateY(-10px); }
+    100% { transform: rotate(-2deg) translateY( 10px); }
+  }
+  /* #4 mobile — no rotation */
+  @keyframes dashFloatMobile {
+    0%   { transform: translateY(-10px); }
+    100% { transform: translateY( 10px); }
+  }
+  /* #6 — glass shine sweep every 8s */
+  @keyframes glassShine {
+    0%,85%  { transform: translateX(-120%) skewX(-18deg); opacity:0;   }
+    87%     { opacity:.55; }
+    100%    { transform: translateX( 260%) skewX(-18deg); opacity:0;   }
+  }
+  /* #8 — staggered word reveal */
+  @keyframes wordReveal {
+    from { opacity:0; transform:translateY(18px); filter:blur(4px); }
+    to   { opacity:1; transform:translateY(0);    filter:blur(0);   }
+  }
+  /* #9 — gradient sweep on "Scale" */
+  @keyframes scaleSweep {
+    0%   { background-position: 0%   50%; }
+    100% { background-position: 200% 50%; }
+  }
+  /* horizontal beam */
+  @keyframes beamPan {
+    0%   { transform: translateX(-100%) scaleY(1);   opacity:0;   }
+    10%  { opacity:1; }
+    90%  { opacity:.7; }
+    100% { transform: translateX( 110%) scaleY(1);   opacity:0;   }
+  }
+`
+
+/* ─────────────────────────────────────────────
+   ANIMATED LINE CHART (unchanged)
+───────────────────────────────────────────── */
+function HeroLineChart() {
+  const [drawn, setDrawn] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setDrawn(true); obs.disconnect() } },
+      { threshold: 0.3 }
+    )
+    if (ref.current) obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [])
+
+  const pts = [
+    [0,64],[28,58],[56,52],[84,46],[112,50],
+    [140,38],[168,32],[196,40],[224,26],[252,30],
+    [280,20],[308,24],[336,14],[364,18],[400,10],
+  ]
+  const linePath = pts.map(([x,y],i) => `${i===0?'M':'L'}${x} ${y}`).join(' ')
+  const fillPath = linePath + ' L400 80 L0 80 Z'
+
+  return (
+    <div ref={ref} className="w-full" style={{ height: 80 }}>
+      <svg viewBox="0 0 400 80" className="w-full h-full" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="hLineGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stopColor="#6366F1" />
+            <stop offset="100%" stopColor="#22D3EE" />
+          </linearGradient>
+          <linearGradient id="hFillGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#22D3EE" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#22D3EE" stopOpacity="0"    />
+          </linearGradient>
+          <clipPath id="hReveal">
+            <rect x="0" y="0" height="80"
+              style={{ width: drawn ? 400 : 0, transition: 'width 1.6s cubic-bezier(.4,0,.2,1) .2s' }} />
+          </clipPath>
+        </defs>
+        <path d={fillPath} fill="url(#hFillGrad)"
+          style={{ opacity: drawn ? 1 : 0, transition: 'opacity 600ms 400ms' }} />
+        <path d={linePath} fill="none" stroke="url(#hLineGrad)"
+          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          clipPath="url(#hReveal)"
+          style={{ filter: drawn ? 'drop-shadow(0 0 6px rgba(34,211,238,.5))' : 'none' }} />
+        {drawn && (
+          <circle cx="400" cy="10" r="4" fill="#22D3EE"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(34,211,238,.9))', animation: 'heroDotPulse 2s ease-in-out infinite' }} />
+        )}
+      </svg>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   HERO VISUAL — right column
+───────────────────────────────────────────── */
+function HeroVisual({ isDark }) {
+  const card  = isDark
+    ? { bg: 'linear-gradient(135deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 100%)',
+        shadow: '0 32px 80px rgba(99,102,241,.18), 0 0 0 1px rgba(255,255,255,.05) inset, 0 0 60px rgba(34,211,238,.06)',
+        border: 'rgba(255,255,255,.10)' }
+    : { bg: '#FFFFFF',
+        shadow: '0 24px 60px rgba(99,102,241,.10), 0 0 0 1px #E2E8F0',
+        border: '#E2E8F0' }
+
+  const topBar = isDark ? 'rgba(255,255,255,.03)' : 'rgba(248,250,252,.9)'
+  const topBarBorder = isDark ? 'rgba(255,255,255,.08)' : '#E2E8F0'
+  const chartBg  = isDark ? 'rgba(255,255,255,.03)' : '#F8FAFC'
+  const chartBorder = isDark ? 'rgba(255,255,255,.06)' : '#E2E8F0'
+  const kpiBg    = isDark ? 'rgba(255,255,255,.04)' : '#F8FAFC'
+  const kpiBorder = isDark ? 'rgba(255,255,255,.08)' : '#E2E8F0'
+  const floatBg  = isDark ? 'rgba(7,16,36,.90)' : 'rgba(255,255,255,.97)'
+  const floatBorder = isDark ? 'rgba(255,255,255,.10)' : '#E2E8F0'
+  const floatShadow1 = isDark ? '0 8px 32px rgba(34,211,238,.12)' : '0 4px 20px rgba(99,102,241,.08)'
+  const floatShadow2 = isDark ? '0 8px 32px rgba(99,102,241,.12)' : '0 4px 20px rgba(99,102,241,.08)'
+  const titleColor  = isDark ? undefined : '#0F172A'
+  const labelColor  = isDark ? undefined : '#64748B'
+  const dayColor    = isDark ? undefined : '#94A3B8'
+
+  return (
+    <div className="relative w-full flex justify-center lg:justify-end">
+
+      {/* Radial spotlight — hidden in light (Canvas aurora also hidden) */}
+      {isDark && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            width: 900, height: 900,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'radial-gradient(ellipse at center, rgba(34,211,238,.07) 0%, rgba(34,211,238,.03) 35%, transparent 65%)',
+            filter: 'blur(40px)',
+            zIndex: 0,
+          }}
+        />
+      )}
+
+      {/* Light mode: soft radial glow behind card */}
+      {!isDark && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{
+            width: 700, height: 700,
+            top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'radial-gradient(ellipse at center, rgba(99,102,241,.05) 0%, transparent 65%)',
+            filter: 'blur(60px)',
+            zIndex: 0,
+          }}
+        />
+      )}
+
+      {/* Horizontal beam — dark only */}
+      {isDark && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute overflow-hidden"
+          style={{ inset: 0, zIndex: 1, borderRadius: 32 }}
+        >
+          <div style={{
+            position: 'absolute', top: '42%', left: 0, width: '100%', height: 2,
+            background: 'linear-gradient(90deg, transparent 0%, rgba(34,211,238,.55) 40%, rgba(99,102,241,.55) 60%, transparent 100%)',
+            filter: 'blur(6px)',
+            animation: 'beamPan 7s cubic-bezier(.4,0,.6,1) infinite',
+            animationDelay: '1.5s',
+          }} />
+        </div>
+      )}
+
+      {/* Dashboard wrapper — float + rotation */}
+      <div
+        className="relative z-10 w-full"
+        style={{ maxWidth: 520, animation: 'dashFloat 12s ease-in-out infinite alternate' }}
+      >
+        {/* Glass shine — dark only */}
+        {isDark && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[32px] overflow-hidden"
+            style={{ zIndex: 20 }}
+          >
+            <div style={{
+              position: 'absolute', top: 0, left: 0, width: '55%', height: '100%',
+              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,.07) 50%, transparent 60%)',
+              animation: 'glassShine 8s ease-in-out infinite',
+            }} />
+          </div>
+        )}
+
+        {/* ── Dashboard card ── */}
+        <div
+          className="w-full rounded-[32px] overflow-hidden"
+          style={{
+            height:     420,
+            background: card.bg,
+            boxShadow:  card.shadow,
+            border:     `1px solid ${card.border}`,
+          }}
+        >
+          {/* Top bar */}
+          <div
+            className="flex items-center justify-between px-6 py-4"
+            style={{ background: topBar, borderBottom: `1px solid ${topBarBorder}` }}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="h-2 w-2 rounded-full bg-[#22D3EE] shadow-[0_0_8px_rgba(34,211,238,.8)] animate-pulse" />
+              <span className="text-sm font-[600]" style={{ color: titleColor }}>Analytics</span>
+            </div>
+            <span className="text-xs font-[500]" style={{ color: labelColor ?? undefined }}
+              className2="text-slate-500">Last 7 days</span>
+          </div>
+
+          <div className="flex flex-col h-[calc(100%-57px)] p-5 gap-4">
+            {/* Users */}
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-[11px] font-[600] uppercase tracking-widest text-slate-500"
+                  style={labelColor ? { color: labelColor } : {}}>Total Users</p>
+                <p className="mt-1 text-3xl font-[800] tracking-tight"
+                  style={{ color: titleColor }}>34.8k</p>
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] font-[700] text-green-600 px-2.5 py-1 rounded-full"
+                style={{
+                  background: isDark ? 'rgba(34,197,94,.08)' : 'rgba(34,197,94,.10)',
+                  border: `1px solid ${isDark ? 'rgba(34,197,94,.2)' : 'rgba(34,197,94,.25)'}`,
+                }}>
+                ↑ 12.4%
+              </div>
+            </div>
+
+            {/* Line chart */}
+            <div
+              className="flex-1 px-4 pt-3 pb-2 flex flex-col justify-between rounded-2xl"
+              style={{ background: chartBg, border: `1px solid ${chartBorder}` }}
+            >
+              <HeroLineChart />
+              <div className="flex justify-between mt-1">
+                {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => (
+                  <span key={d} className="text-[9px]"
+                    style={{ color: dayColor ?? '#64748B' }}>{d}</span>
+                ))}
+              </div>
+            </div>
+
+            {/* KPI row */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: 'Revenue', value: '$1.2M', color: '#22D3EE'  },
+                { label: 'Growth',  value: '+24%',  color: '#a78bfa'  },
+                { label: 'NPS',     value: '+48',   color: '#6366F1'  },
+              ].map(k => (
+                <div key={k.label}
+                  className="rounded-2xl px-3 py-3 text-center"
+                  style={{ background: kpiBg, border: `1px solid ${kpiBorder}` }}>
+                  <p className="text-[15px] font-[800]" style={{ color: k.color }}>{k.value}</p>
+                  <p className="text-[10px] mt-0.5"
+                    style={{ color: labelColor ?? '#64748B' }}>{k.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating card 1 — Conversion */}
+      <div
+        className="absolute z-30 rounded-[20px] px-4 py-3"
+        style={{
+          top: '10%', left: 0,
+          background:  floatBg,
+          border:      `1px solid ${floatBorder}`,
+          boxShadow:   floatShadow1,
+          animation:   'dashFloat 12s ease-in-out 0.8s infinite alternate',
+          minWidth:    120,
+        }}
+      >
+        <p className="text-[10px] font-[600] uppercase tracking-widest mb-0.5"
+          style={{ color: labelColor ?? '#64748B' }}>Conversion</p>
+        <p className="text-xl font-[900] bg-gradient-to-r from-[#22D3EE] to-[#6366F1] bg-clip-text text-transparent leading-none">
+          +24%
+        </p>
+      </div>
+
+      {/* Floating card 2 — NPS */}
+      <div
+        className="absolute z-30 rounded-[20px] px-4 py-3"
+        style={{
+          bottom: '14%', right: 0,
+          background:  floatBg,
+          border:      `1px solid ${floatBorder}`,
+          boxShadow:   floatShadow2,
+          animation:   'dashFloat 12s ease-in-out 2s infinite alternate',
+          minWidth:    110,
+        }}
+      >
+        <p className="text-[10px] font-[600] uppercase tracking-widest mb-0.5"
+          style={{ color: labelColor ?? '#64748B' }}>NPS Score</p>
+        <p className="text-xl font-[900] bg-gradient-to-r from-[#6366F1] to-[#22D3EE] bg-clip-text text-transparent leading-none">
+          +48
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATED HEADING
+───────────────────────────────────────────── */
+function AnimatedHeading({ isDark }) {
+  const words = ['Engineering', 'Digital', 'Products', 'That']
+  const headingColor = isDark ? '#F8FAFC' : '#0F172A'
+  return (
+    <h1
+      id="hero-heading"
+      className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight"
+      style={{ color: headingColor }}
+    >
+      {words.map((w, i) => (
+        <span
+          key={w}
+          style={{
+            display:        'inline-block',
+            opacity:        0,
+            animation:      'wordReveal 0.7s cubic-bezier(.22,1,.36,1) forwards',
+            animationDelay: `${0.1 + i * 0.12}s`,
+          }}
+        >
+          {w}{' '}
+        </span>
+      ))}
+      <span
+        className="inline-block"
+        style={{ opacity: 0, animation: 'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0.60s forwards' }}
+      >
+        <span
+          style={{
+            backgroundImage:      'linear-gradient(90deg, #22D3EE 0%, #6366F1 30%, #A78BFA 60%, #22D3EE 100%)',
+            backgroundSize:       '200% auto',
+            backgroundClip:       'text',
+            WebkitBackgroundClip: 'text',
+            color:                'transparent',
+            WebkitTextFillColor:  'transparent',
+            animation:            'scaleSweep 4s linear 1.2s infinite',
+          }}
+        >
+          Scale
+        </span>
+      </span>
+    </h1>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
 export default function Hero() {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
+  const sectionBg = isDark
+    ? '#020617'
+    : 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #EEF2FF 100%)'
+
+  const descColor  = isDark ? '#D1D9E8' : '#334155'
+  const badgeBg    = isDark ? 'rgba(255,255,255,.06)' : 'rgba(99,102,241,.08)'
+  const badgeBorder = isDark ? 'rgba(255,255,255,.10)' : 'rgba(99,102,241,.2)'
+  const badgeColor = isDark ? '#D1D9E8' : '#4338CA'
+  const secBtnBg   = isDark ? 'rgba(255,255,255,.04)' : 'rgba(255,255,255,.8)'
+  const secBtnBorder = isDark ? 'rgba(255,255,255,.10)' : '#CBD5E1'
+  const secBtnColor  = isDark ? '#D1D9E8' : '#0F172A'
+
   return (
     <section
-  aria-labelledby="hero-heading"
-  className="relative overflow-visible max-w-[1600px] mx-auto px-8 py-12 md:py-24"
->
-      {/* Background gradient orbs & decorative shapes */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -left-24 -top-24 w-72 h-72 rounded-full bg-gradient-to-tr from-[#22D3EE]/30 via-transparent to-transparent blur-3xl opacity-70 transform rotate-12" />
-        <div className="absolute -right-28 top-12 w-64 h-64 rounded-full bg-gradient-to-br from-[#6366F1]/20 via-transparent to-transparent blur-2xl opacity-60" />
-        <div className="absolute left-1/2 -top-10 w-96 h-96 rounded-full bg-gradient-to-r from-[#22D3EE]/6 to-[#6366F1]/6 blur-2xl opacity-40 transform -translate-x-1/2" />
+      aria-labelledby="hero-heading"
+      className="relative overflow-hidden max-w-[1440px] mx-auto px-6 sm:px-8 py-16 md:py-24 lg:py-28"
+      style={isDark
+        ? { backgroundColor: sectionBg }
+        : { background: sectionBg }
+      }
+    >
+      <style>{KEYFRAMES}</style>
 
-        <svg className="absolute right-6 bottom-0 w-48 h-48 opacity-20" viewBox="0 0 100 100" fill="none" aria-hidden>
-          <rect x="10" y="10" width="80" height="80" rx="12" stroke="#6366F1" strokeWidth="0.6" strokeOpacity="0.2" />
-        </svg>
+      {/* Aurora — dark mode only (canvas renders its own dark bg) */}
+      {isDark && (
+        <Suspense fallback={null}>
+          <AuroraBackground />
+        </Suspense>
+      )}
+
+      {/* Edge glows */}
+      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 1 }}>
+        <div className="absolute rounded-full"
+          style={{
+            top: '-15%', left: '-12%', width: 700, height: 700,
+            background: isDark
+              ? 'radial-gradient(circle, rgba(34,211,238,.04) 0%, transparent 60%)'
+              : 'radial-gradient(circle, rgba(99,102,241,.06) 0%, transparent 60%)',
+            filter: 'blur(200px)',
+          }} />
+        <div className="absolute rounded-full"
+          style={{
+            top: '0%', right: '-18%', width: 800, height: 800,
+            background: isDark
+              ? 'radial-gradient(circle, rgba(99,102,241,.05) 0%, transparent 60%)'
+              : 'radial-gradient(circle, rgba(34,211,238,.05) 0%, transparent 60%)',
+            filter: 'blur(220px)',
+          }} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_620px_240px] xl:gap-x-10 gap-10 items-start relative">
-        {/* Column 1: Left - content */}
-        <div>
-          <div className="max-w-xl">
-            <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-white/6 text-[#D1D9E8] backdrop-blur-sm">
-              Digital Transformation Studio
-            </span>
+      {/* Content grid */}
+      <div
+        className="relative grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-12 lg:gap-16 items-center"
+        style={{ zIndex: 10 }}
+      >
+        {/* LEFT */}
+        <div className="max-w-xl">
+          {/* Badge */}
+          <span
+            className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
+            style={{
+              background:  badgeBg,
+              border:      `1px solid ${badgeBorder}`,
+              color:       badgeColor,
+              opacity:     0,
+              animation:   'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0s forwards',
+            }}
+          >
+            Digital Transformation Studio
+          </span>
 
-            <h1
-              id="hero-heading"
-              className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-[#F8FAFC]"
+          <AnimatedHeading isDark={isDark} />
+
+          {/* Description */}
+          <p
+            className="mt-4 text-base md:text-lg"
+            style={{
+              color:     descColor,
+              opacity:   0,
+              animation: 'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0.72s forwards',
+            }}
+          >
+            We help ambitious businesses design, develop and grow modern digital experiences.
+          </p>
+
+          {/* CTAs */}
+          <div
+            className="mt-8 flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3"
+            style={{ opacity: 0, animation: 'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0.88s forwards' }}
+          >
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-lg hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(99,102,241,.35)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22D3EE]/40"
+              aria-label="Start your project"
             >
-              Engineering Digital Products That{' '}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#22D3EE] via-[#6366F1] to-[#A78BFA]">Scale</span>
-            </h1>
-
-            <p className="mt-4 text-base md:text-lg text-[#D1D9E8]">
-              We help ambitious businesses design, develop and grow modern digital experiences.
-            </p>
-
-            <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3">
-              <a
-                href="#start"
-                className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-md text-base font-semibold text-white shadow-sm bg-[#6366F1] hover:bg-[#4F46E5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22D3EE]/40"
-                aria-label="Start your project"
-              >
-                Start Your Project
-              </a>
-
-              <a
-                href="#case-studies"
-                className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-md border border-[#334155] text-base font-medium text-[#D1D9E8] bg-white/2 hover:bg-white/3 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/6"
-                aria-label="View case studies"
-              >
-                View Case Studies
-              </a>
-            </div>
+              Start Your Project
+            </a>
+            <a
+              href="#work"
+              className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-xl text-base font-medium hover:-translate-y-0.5 transition-all duration-200 focus:outline-none"
+              style={{
+                background:  secBtnBg,
+                border:      `1px solid ${secBtnBorder}`,
+                color:       secBtnColor,
+              }}
+              aria-label="View case studies"
+            >
+              View Case Studies
+            </a>
           </div>
         </div>
 
-        {/* Column 2: Center - dashboard */}
-        <div>
-          <div className="relative w-full max-w-[620px]">
-            <div className="relative">
-              <div className="rounded-3xl p-6 border border-white/6 bg-[#0b1220] backdrop-blur-md shadow-2xl">
-                <div className="flex flex-col sm:flex-row sm:gap-4 gap-4">
-                  <div className="flex-1 rounded-xl p-4 bg-gradient-to-b from-white/2 to-transparent border border-white/4">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-[#D1D9E8] font-medium">Analytics</div>
-                      <div className="text-xs text-[#94A3B8]">Last 7 days</div>
-                    </div>
-                    <div className="mt-4">
-                      <div className="text-lg font-semibold text-[#F8FAFC]">34.8k</div>
-                      <div className="mt-2 h-12">
-                        <svg className="w-full h-full" viewBox="0 0 100 24" preserveAspectRatio="none">
-                          <polyline
-                            fill="none"
-                            stroke="#22D3EE"
-                            strokeWidth="2"
-                            points="0,18 10,14 20,12 30,10 40,8 50,6 60,8 70,5 80,7 90,4 100,6"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="w-full sm:w-44 rounded-xl p-4 bg-gradient-to-b from-white/2 to-transparent border border-white/4">
-                    <div className="text-sm text-[#D1D9E8] font-medium">Revenue</div>
-                    <div className="mt-4 text-lg font-semibold text-[#F8FAFC]">$1.2M</div>
-                    <div className="text-xs text-[#94A3B8] mt-2">MoM +12%</div>
-                  </div>
-                </div>
-
-                <div className="mt-4 rounded-lg p-4 bg-[#071025]/80 border border-white/5">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-[#D1D9E8] font-medium">Performance</div>
-                    <div className="text-xs text-[#94A3B8]">Overview</div>
-                  </div>
-                  <div className="mt-3 h-36">
-                    <svg className="w-full h-full" viewBox="0 0 100 40" preserveAspectRatio="none">
-                      <polyline
-                        fill="none"
-                        stroke="#6366F1"
-                        strokeWidth="3"
-                        points="0,30 10,28 20,22 30,18 40,12 50,10 60,14 70,9 80,12 90,6 100,8"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* layered card shadow for depth */}
-              <div className="absolute -inset-1 transform translate-x-2 translate-y-3 rounded-3xl bg-gradient-to-r from-[#000000]/40 to-transparent blur-xl opacity-30 -z-10" />
-
-              {/* Floating stat cards with gradient */}
-              <div className="pointer-events-none">
-                <div className="absolute -top-8 -left-8 w-36 rounded-xl p-3 bg-gradient-to-br from-[#22D3EE]/30 to-[#6366F1]/20 border border-white/4 shadow-lg">
-                  <div className="text-xs text-[#D1D9E8]">Conversion</div>
-                  <div className="text-lg font-semibold text-[#F8FAFC]">+24%</div>
-                </div>
-
-                <div className="absolute -bottom-8 -right-8 w-40 rounded-xl p-3 bg-gradient-to-br from-[#6366F1]/20 to-[#22D3EE]/20 border border-white/4 shadow-lg">
-                  <div className="text-xs text-[#D1D9E8]">NPS</div>
-                  <div className="text-lg font-semibold text-[#F8FAFC]">+48</div>
-                </div>
-              </div>
-
-              {/* Tablet: 2x2 grid under dashboard. Visible from md up to lg (hidden at lg+) */}
-              <div className="hidden md:grid lg:hidden grid-cols-2 gap-6 mt-6">
-                <div className="w-full h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-5 shadow-lg">
-                  <div className="text-2xl font-extrabold text-[#22D3EE]">500+</div>
-                  <div className="text-sm text-[#D1D9E8] mt-2">Projects Delivered</div>
-                </div>
-                <div className="w-full h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-5 shadow-lg">
-                  <div className="text-2xl font-extrabold text-[#6366F1]">98%</div>
-                  <div className="text-sm text-[#D1D9E8] mt-2">Client Satisfaction</div>
-                </div>
-                <div className="w-full h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-5 shadow-lg">
-                  <div className="text-2xl font-extrabold text-[#22D3EE]">15+</div>
-                  <div className="text-sm text-[#D1D9E8] mt-2">Industries Served</div>
-                </div>
-                <div className="w-full h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-5 shadow-lg">
-                  <div className="text-2xl font-extrabold text-[#6366F1]">24/7</div>
-                  <div className="text-sm text-[#D1D9E8] mt-2">Support</div>
-                </div>
-              </div>
-
-              {/* Mobile: horizontal scroll visible under md (sm and xs) */}
-              <div className="md:hidden mt-6 -mx-6 px-6">
-                <div className="flex gap-4 overflow-x-auto pb-2 scroll-smooth">
-                  <div className="flex-shrink-0 w-[220px] h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-5 py-4 shadow-lg">
-                    <div className="text-2xl font-extrabold text-[#22D3EE]">500+</div>
-                    <div className="text-sm text-[#D1D9E8] mt-2">Projects</div>
-                  </div>
-                  <div className="flex-shrink-0 w-[220px] h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-5 py-4 shadow-lg">
-                    <div className="text-2xl font-extrabold text-[#6366F1]">98%</div>
-                    <div className="text-sm text-[#D1D9E8] mt-2">Satisfaction</div>
-                  </div>
-                  <div className="flex-shrink-0 w-[220px] h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-5 py-4 shadow-lg">
-                    <div className="text-2xl font-extrabold text-[#22D3EE]">15+</div>
-                    <div className="text-sm text-[#D1D9E8] mt-2">Industries</div>
-                  </div>
-                  <div className="flex-shrink-0 w-[220px] h-[110px] rounded-[20px] bg-white/5 border border-white/10 backdrop-blur-md px-5 py-4 shadow-lg">
-                    <div className="text-2xl font-extrabold text-[#6366F1]">24/7</div>
-                    <div className="text-sm text-[#D1D9E8] mt-2">Support</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Column 3: Right - trust rail (desktop only, no absolute) */}
-       <div className="hidden xl:flex flex-col items-end w-[240px] gap-5 justify-center pt-10">
-          <div className="relative w-full">
-            <div className="absolute -left-6 top-0 h-[420px] w-px bg-gradient-to-b from-[#22D3EE]/30 via-[#6366F1]/20 to-transparent blur-sm opacity-85 rounded -z-10" />
-
-            <div className="flex flex-col items-end gap-4">
-              <div className="w-full h-[100px] rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-4 shadow-[0_8px_30px_rgba(34,211,238,0.06)] text-right">
-                <div className="text-3xl font-extrabold text-[#22D3EE]">500+</div>
-                <div className="text-sm text-[#D1D9E8] mt-2">Projects Delivered</div>
-              </div>
-
-              <div className="w-full h-[100px] rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-4 shadow-[0_8px_30px_rgba(99,102,241,0.06)] text-right">
-                <div className="text-3xl font-extrabold text-[#6366F1]">98%</div>
-                <div className="text-sm text-[#D1D9E8] mt-2">Client Satisfaction</div>
-              </div>
-
-              <div className="w-full h-[100px] rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-4 shadow-[0_8px_30px_rgba(34,211,238,0.04)] text-right">
-                <div className="text-3xl font-extrabold text-[#22D3EE]">15+</div>
-                <div className="text-sm text-[#D1D9E8] mt-2">Industries Served</div>
-              </div>
-
-              <div className="w-full h-[100px] rounded-[24px] bg-white/5 border border-white/10 backdrop-blur-md px-6 py-4 shadow-[0_8px_30px_rgba(99,102,241,0.04)] text-right">
-                <div className="text-3xl font-extrabold text-[#6366F1]">24/7</div>
-                <div className="text-sm text-[#D1D9E8] mt-2">Support</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* subtle floating decorative orbs */}
-      <div className="pointer-events-none absolute inset-0 -z-0">
-        <div className="absolute right-20 top-32 w-24 h-24 rounded-full bg-gradient-to-tr from-[#22D3EE]/10 to-transparent blur-2xl opacity-60" />
-        <div className="absolute left-10 bottom-10 w-28 h-28 rounded-full bg-gradient-to-br from-[#6366F1]/8 to-transparent blur-2xl opacity-50" />
+        {/* RIGHT */}
+        <HeroVisual isDark={isDark} />
       </div>
     </section>
   )

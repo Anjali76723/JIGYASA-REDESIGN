@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTheme } from '../context/ThemeContext'
 
 const navLinks = [
   { label: 'Services',   href: '#services'   },
@@ -72,6 +73,9 @@ export default function Navbar() {
     smoothScroll(href, () => setOpen(false))
     setActiveHash(href)
   }
+
+  const { theme, toggleTheme } = useTheme()
+  const isDark = theme === 'dark'
 
   const bg = scrolled
     ? 'bg-[rgba(7,16,36,0.80)] backdrop-blur-[30px] shadow-[0_10px_40px_rgba(0,0,0,.32),0_20px_60px_rgba(99,102,241,.10)]'
@@ -148,6 +152,10 @@ export default function Navbar() {
 
           {/* ── Right CTAs (desktop) ── */}
           <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+
+            {/* Theme toggle */}
+            <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+
             {/* Schedule Call — glass */}
             <button
               className="
@@ -212,11 +220,76 @@ export default function Navbar() {
         navLinks={navLinks}
         activeHash={activeHash}
         onNavClick={handleClick}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
       />
 
       {/* Layout spacer */}
       <div className="h-[108px]" aria-hidden />
     </>
+  )
+}
+
+/* ══════════════════════════════════════════════
+   THEME TOGGLE BUTTON
+══════════════════════════════════════════════ */
+function ThemeToggle({ isDark, onToggle }) {
+  return (
+    <button
+      onClick={onToggle}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="flex items-center justify-center rounded-full border transition-all duration-300 hover:scale-105 active:scale-95"
+      style={{
+        width:       44,
+        height:      44,
+        background:  isDark ? 'rgba(255,255,255,.05)' : 'rgba(15,23,42,.06)',
+        borderColor: isDark ? 'rgba(255,255,255,.10)' : 'rgba(15,23,42,.12)',
+        color:       isDark ? '#e2e8f0'               : '#334155',
+        flexShrink:  0,
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background   = isDark ? 'rgba(255,255,255,.10)' : 'rgba(15,23,42,.10)'
+        e.currentTarget.style.borderColor  = isDark ? 'rgba(34,211,238,.35)'  : 'rgba(99,102,241,.35)'
+        e.currentTarget.style.boxShadow    = isDark
+          ? '0 0 16px rgba(34,211,238,.2)'
+          : '0 0 16px rgba(99,102,241,.15)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background  = isDark ? 'rgba(255,255,255,.05)' : 'rgba(15,23,42,.06)'
+        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,.10)' : 'rgba(15,23,42,.12)'
+        e.currentTarget.style.boxShadow   = 'none'
+      }}
+    >
+      {isDark ? <MoonIcon /> : <SunIcon />}
+    </button>
+  )
+}
+
+function MoonIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden>
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  )
+}
+
+function SunIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden>
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1"  x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1"  y1="12" x2="3"  y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+      <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+    </svg>
   )
 }
 
@@ -248,7 +321,7 @@ function HamburgerIcon({ open }) {
 /* ══════════════════════════════════════════════
    MOBILE DRAWER
 ══════════════════════════════════════════════ */
-function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick }) {
+function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark, onToggleTheme }) {
   useEffect(() => {
     const fn = e => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', fn)

@@ -1,15 +1,71 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════
+   THEME TOKENS
+═══════════════════════════════════════════════════════════ */
+:root,
+[data-theme="dark"] {
+  --bg-base:           #020617;
+  --bg-section:        #020617;
+  --bg-card:           rgba(255,255,255,.05);
+  --bg-card-hover:     rgba(255,255,255,.08);
+  --bg-glass:          rgba(255,255,255,.05);
+  --bg-input:          rgba(255,255,255,.05);
+  --bg-nav:            rgba(7,16,36,0.55);
+  --bg-nav-scrolled:   rgba(7,16,36,0.80);
+  --border-card:       rgba(255,255,255,.10);
+  --border-subtle:     rgba(255,255,255,.08);
+  --border-input:      rgba(255,255,255,.10);
+  --text-primary:      #FFFFFF;
+  --text-secondary:    #CBD5E1;   /* slate-300 equivalent */
+  --text-muted:        #94A3B8;   /* slate-400 */
+  --text-faint:        #64748B;   /* slate-500 */
+  --shadow-card:       0 20px 60px rgba(99,102,241,.15);
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg-base:           #F8FAFC;
+  --bg-section:        #F8FAFC;
+  --bg-card:           #FFFFFF;
+  --bg-card-hover:     #F8FAFC;
+  --bg-glass:          rgba(255,255,255,.85);
+  --bg-input:          #FFFFFF;
+  --bg-nav:            rgba(248,250,252,0.85);
+  --bg-nav-scrolled:   rgba(255,255,255,0.96);
+  --border-card:       #E2E8F0;   /* slate-200 */
+  --border-subtle:     #E2E8F0;
+  --border-input:      #CBD5E1;   /* slate-300 */
+  --text-primary:      #0F172A;   /* slate-900 */
+  --text-secondary:    #334155;   /* slate-700 */
+  --text-muted:        #475569;   /* slate-600 */
+  --text-faint:        #64748B;   /* slate-500 */
+  --shadow-card:       0 4px 24px rgba(15,23,42,.08);
+  color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SMOOTH THEME TRANSITION
+   Exclude transform/animation so they never stutter.
+═══════════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  transition:
+    background-color 400ms ease,
+    border-color     400ms ease,
+    color            400ms ease,
+    box-shadow       400ms ease,
+    opacity          400ms ease;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE
+═══════════════════════════════════════════════════════════ */
 @layer base {
   :root {
-    color-scheme: light;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
       "Segoe UI", sans-serif;
     line-height: 1.5;
-  }
-
-  *, *::before, *::after {
-    box-sizing: border-box;
   }
 
   html {
@@ -21,24 +77,211 @@
   body {
     margin: 0;
     min-height: 100vh;
-    background: white;
-    color: #111827;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
     overflow-x: hidden;
   }
 
-  img,
-  picture,
-  video,
-  canvas,
-  svg {
-    display: block;
-    max-width: 100%;
-  }
-
-  input,
-  button,
-  textarea,
-  select {
-    font: inherit;
-  }
+  img, picture, video, canvas, svg { display: block; max-width: 100%; }
+  input, button, textarea, select  { font: inherit; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   LIGHT MODE — MASTER OVERRIDES
+   Strategy: target [data-theme="light"] with high specificity.
+   All overrides use !important to beat inline styles.
+═══════════════════════════════════════════════════════════ */
+
+/* ── 1. ALL SECTION + FOOTER backgrounds ─────────────────── */
+[data-theme="light"] section,
+[data-theme="light"] footer {
+  background-color: var(--bg-section) !important;
+  background-image: none !important;
+}
+
+/* ── 2. HARDCODED inline background-color: #020617 ─────── */
+/* Every component uses style={{backgroundColor:'#020617'}}   */
+/* We can't beat inline specificity with classes alone,       */
+/* so we use the [data-theme] + element selector combo.       */
+[data-theme="light"] section[style*="020617"],
+[data-theme="light"] footer[style*="020617"] {
+  background-color: var(--bg-section) !important;
+}
+
+/* ── 3. TEXT — primary ──────────────────────────────────── */
+[data-theme="light"] .text-white,
+[data-theme="light"] .text-\[\#FFFFFF\],
+[data-theme="light"] .text-\[\#F8FAFC\] {
+  color: var(--text-primary) !important;
+}
+
+/* ── 4. TEXT — secondary ────────────────────────────────── */
+[data-theme="light"] .text-slate-200,
+[data-theme="light"] .text-slate-300,
+[data-theme="light"] .text-\[\#D1D9E8\] {
+  color: var(--text-secondary) !important;
+}
+
+/* ── 5. TEXT — muted (must stay readable, not invisible) ── */
+[data-theme="light"] .text-slate-400 {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="light"] .text-slate-500 {
+  color: #475569 !important;   /* slate-600 — bump up contrast */
+}
+
+[data-theme="light"] .text-slate-600 {
+  color: #334155 !important;   /* slate-700 */
+}
+
+/* ── 6. OPACITY-VARIANT text (text-white/80, text-[#D1D9E8]/80 etc.) ── */
+/* Tailwind generates these as CSS color with opacity.        */
+/* Override the color channel; opacity stays from the class.  */
+[data-theme="light"] [class*="text-white/"],
+[data-theme="light"] [class*="text-slate-"][class*="/"] {
+  color: var(--text-secondary) !important;
+}
+
+/* ── 7. CARD BACKGROUNDS ────────────────────────────────── */
+[data-theme="light"] .bg-white\/3,
+[data-theme="light"] .bg-white\/4,
+[data-theme="light"] .bg-white\/5,
+[data-theme="light"] .bg-white\/6,
+[data-theme="light"] .bg-white\/8,
+[data-theme="light"] .bg-white\/10 {
+  background-color: var(--bg-card) !important;
+}
+
+/* Tailwind's backdrop-blur utility — give it a white base */
+[data-theme="light"] .backdrop-blur-xl,
+[data-theme="light"] .backdrop-blur-md,
+[data-theme="light"] .backdrop-blur-sm {
+  background-color: var(--bg-glass) !important;
+}
+
+/* ── 8. BORDERS ─────────────────────────────────────────── */
+[data-theme="light"] .border-white\/6,
+[data-theme="light"] .border-white\/8,
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/20 {
+  border-color: var(--border-card) !important;
+}
+
+/* ── 9. FORM INPUTS ─────────────────────────────────────── */
+[data-theme="light"] input,
+[data-theme="light"] textarea,
+[data-theme="light"] select {
+  background-color: var(--bg-input) !important;
+  border-color:     var(--border-input) !important;
+  color:            var(--text-primary) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1 !important;
+}
+
+/* ── 10. NAV ─────────────────────────────────────────────── */
+[data-theme="light"] nav {
+  background: var(--bg-nav) !important;
+  border-color: var(--border-card) !important;
+  box-shadow: 0 4px 32px rgba(15,23,42,.08) !important;
+}
+
+[data-theme="light"] nav .text-\[\#D1D9E8\] {
+  color: #475569 !important;
+}
+
+/* ── 11. MOBILE DRAWER ──────────────────────────────────── */
+[data-theme="light"] [class*="bg-\[#020617\]"],
+[data-theme="light"] [class*="bg-\[#071024\]"] {
+  background-color: var(--bg-base) !important;
+}
+
+/* ── 12. GRADIENT GLOWS — reduce opacity in light mode ─── */
+/* Target the decorative absolute blobs only */
+[data-theme="light"] .pointer-events-none.absolute.rounded-full[style*="blur"],
+[data-theme="light"] .pointer-events-none.absolute[style*="blur-3xl"],
+[data-theme="light"] .pointer-events-none.absolute[style*="blur-2xl"] {
+  opacity: 0.04 !important;
+}
+
+/* ── 13. ABOUT SECTION — opacity variants in inline text ── */
+/* text-[#D1D9E8]/80 compiles to a CSS var with opacity.     */
+/* We force a solid readable color on the parent section.    */
+[data-theme="light"] #about p,
+[data-theme="light"] #about li {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] #about h2,
+[data-theme="light"] #about h3 {
+  color: var(--text-primary) !important;
+}
+
+/* ── 14. SECTION HEADINGS — global catch-all ────────────── */
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4 {
+  color: var(--text-primary);   /* no !important — let gradient text win */
+}
+
+/* ── 15. HERO — handled directly in Hero.jsx via useTheme ── */
+/* No CSS overrides needed; Hero reads theme and applies
+   correct inline styles for bg, cards, text, and glows.     */
+
+/* ── 16. CARD SHADOW refinement in light ────────────────── */
+[data-theme="light"] [class*="shadow-"] {
+  /* Don't touch colored glows inside shadows that look bad in light */
+}
+
+/* ── 17. SPECIFIC hardcoded text colours ────────────────── */
+[data-theme="light"] .text-\[\#D1D9E8\]\/80,
+[data-theme="light"] .text-\[\#D1D9E8\]\/70 {
+  color: var(--text-secondary) !important;
+  opacity: 1 !important;
+}
+
+/* ── 18. DIVIDER lines ───────────────────────────────────── */
+[data-theme="light"] [class*="via-white\/10"],
+[data-theme="light"] [class*="via-white\/8"] {
+  --tw-gradient-via: #CBD5E1;
+}
+
+/* ── 19. LABEL tracking text (cyan stays as brand color) ── */
+/* Keep cyan-400, cyan-300 labels — they look great on light  */
+
+/* ── 20. CTA section inner card ─────────────────────────── */
+[data-theme="light"] .bg-white\/4 {
+  background-color: rgba(255,255,255,.9) !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 4px 24px rgba(15,23,42,.06) !important;
+}
+
+/* ── 21. Progress bars / pipeline track ─────────────────── */
+[data-theme="light"] [style*="rgba(255,255,255,.04)"],
+[data-theme="light"] [style*="rgba(255,255,255,.05)"],
+[data-theme="light"] [style*="rgba(255,255,255,.06)"] {
+  background-color: rgba(15,23,42,.05) !important;
+}
+
+/* ── 22. Industry visual / dashboard mockup backgrounds ─── */
+[data-theme="light"] [style*="rgba(255,255,255,.03)"] {
+  background-color: rgba(15,23,42,.03) !important;
+}
+
+/* ── 23. Stats section text-slate-200 in About card ──────── */
+[data-theme="light"] .text-slate-200 {
+  color: var(--text-secondary) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════ */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.no-transition * { transition: none !important; }

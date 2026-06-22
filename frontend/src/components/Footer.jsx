@@ -1,44 +1,53 @@
-import React from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+/* ─────────────────────────────────────────────────────────
+   DATA
+───────────────────────────────────────────────────────── */
 const quickLinks = [
-  { label: 'Home', href: '#' },
-  { label: 'Services', href: '#services' },
-  { label: 'Work', href: '#work' },
-  { label: 'Process', href: '#process' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home',       href: '#'          },
+  { label: 'Services',   href: '#services'  },
+  { label: 'Work',       href: '#work'      },
+  { label: 'Industries', href: '#industries'},
+  { label: 'About',      href: '#about'     },
+  { label: 'Contact',    href: '#contact'   },
 ]
 
 const serviceLinks = [
-  'Web Development',
-  'Mobile Development',
-  'UI/UX Design',
-  'Cloud & DevOps',
-  'AI & Automation',
+  { label: 'Web Development',  href: '#services' },
+  { label: 'Mobile Apps',      href: '#services' },
+  { label: 'UI/UX Design',     href: '#services' },
+  { label: 'Cloud & DevOps',   href: '#services' },
+  { label: 'AI Solutions',     href: '#services' },
 ]
 
-const contactInfo = [
+const contactItems = [
   {
+    href: 'mailto:hello@jigyasatechnologies.com',
     icon: (
-      <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="4" width="20" height="16" rx="2" />
-        <path d="M22 7l-10 7L2 7" />
+      <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/>
       </svg>
     ),
     value: 'hello@jigyasatechnologies.com',
   },
   {
+    href: 'tel:+918888290917',
     icon: (
-      <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.97 2.18 2 2 0 012.95.97h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 2 2 0 011.72 2z" />
+      <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.97 2.18 2 2 0 012.95.97h3a2 2 0 012 1.72c.128.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.572 2.81.7A2 2 0 0122 16.92z"/>
       </svg>
     ),
     value: '+91 88882909177',
   },
   {
+    href: '#',
     icon: (
-      <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-        <circle cx="12" cy="9" r="2.5" />
+      <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle cx="12" cy="9" r="2.5"/>
       </svg>
     ),
     value: 'India',
@@ -47,154 +56,573 @@ const contactInfo = [
 
 const socials = [
   {
-    label: 'LinkedIn',
-    href: '#',
+    label: 'LinkedIn', href: '#',
     icon: (
       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
-        <circle cx="4" cy="4" r="2" />
+        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
+        <circle cx="4" cy="4" r="2"/>
       </svg>
     ),
   },
   {
-    label: 'Twitter',
-    href: '#',
+    label: 'Instagram', href: '#',
     icon: (
-      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
       </svg>
     ),
   },
   {
-    label: 'Instagram',
-    href: '#',
+    label: 'Twitter', href: '#',
     icon: (
-      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" />
+      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
       </svg>
     ),
   },
 ]
 
-export default function Footer() {
+const metrics = [
+  { value: '500+', label: 'Projects Delivered'   },
+  { value: '98%',  label: 'Client Satisfaction'  },
+  { value: '50+',  label: 'Experts'              },
+  { value: '10+',  label: 'Years Experience'     },
+]
+
+/* ─────────────────────────────────────────────────────────
+   WIREFRAME GLOBE  — pure SVG, no canvas, zero deps
+───────────────────────────────────────────────────────── */
+function WireframeGlobe() {
+  // Generate latitude + longitude lines
+  const R  = 440   // radius in SVG units
+  const cx = 450, cy = 450
+  const latLines  = []
+  const longLines = []
+
+  // Latitudes: every 18°
+  for (let lat = -80; lat <= 80; lat += 18) {
+    const r   = R * Math.cos((lat * Math.PI) / 180)
+    const y   = cy - R * Math.sin((lat * Math.PI) / 180)
+    const ops = r > 0 ? r * 0.3 : 0   // perspective tilt for horizontal ellipses
+    latLines.push({ r, y, ops })
+  }
+
+  // Longitudes: every 20°
+  for (let lon = 0; lon < 180; lon += 20) {
+    const angle = (lon * Math.PI) / 180
+    const x1 = cx + R * Math.cos(angle + Math.PI / 2)
+    const y1 = cy + R * Math.sin(angle + Math.PI / 2) * 0.35
+    const x2 = cx + R * Math.cos(angle - Math.PI / 2)
+    const y2 = cy + R * Math.sin(angle - Math.PI / 2) * 0.35
+    longLines.push({ x1, y1, x2, y2 })
+  }
+
   return (
-    <footer className="relative overflow-hidden border-t border-white/10" style={{ backgroundColor: '#020617' }}>
-      {/* Background glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-64 w-[600px] rounded-full bg-gradient-to-r from-cyan-500/5 via-indigo-500/5 to-cyan-400/5 blur-3xl" />
+    <svg
+      viewBox="0 0 900 900"
+      className="w-full h-full"
+      aria-hidden
+      style={{ animation: 'globeSpin 60s linear infinite' }}
+    >
+      <defs>
+        <radialGradient id="globeGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stopColor="#22D3EE" stopOpacity="0.06"/>
+          <stop offset="60%"  stopColor="#6366F1" stopOpacity="0.04"/>
+          <stop offset="100%" stopColor="#020617" stopOpacity="0"/>
+        </radialGradient>
+      </defs>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-16 pb-8">
+      {/* Subtle fill */}
+      <circle cx={cx} cy={cy} r={R} fill="url(#globeGrad)"/>
 
-        {/* ── Top 4-column grid ── */}
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Latitude rings — drawn as ellipses (perspective) */}
+      {latLines.map(({ r, y, ops }, i) => (
+        r > 8 && (
+          <ellipse
+            key={`lat-${i}`}
+            cx={cx} cy={y}
+            rx={r}  ry={Math.max(r * 0.28, 4)}
+            fill="none"
+            stroke="url(#globeStroke)"
+            strokeWidth="0.8"
+            strokeOpacity="0.45"
+          />
+        )
+      ))}
 
-          {/* Col 1 — Brand */}
-          <div className="flex flex-col gap-5">
-            <a href="/" className="flex items-baseline gap-2" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
-              <span className="text-xl font-extrabold text-white tracking-tight">JIGYASA</span>
-              <span className="text-sm font-medium text-cyan-300/90">TECHNOLOGIES</span>
-            </a>
-            <p className="text-sm text-slate-400 leading-relaxed max-w-[220px]">
-              We craft scalable digital products through strategy, design, and engineering — for ambitious organizations worldwide.
-            </p>
-            {/* Socials */}
-            <div className="flex items-center gap-3">
-              {socials.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.href}
-                  aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-slate-400 transition-all duration-300 hover:scale-110 hover:text-cyan-400 hover:border-cyan-400/30 hover:shadow-[0_0_16px_rgba(34,211,238,0.2)]"
-                >
-                  {s.icon}
-                </a>
-              ))}
-            </div>
-          </div>
+      {/* Longitude arcs — approximate as straight lines for perf */}
+      {longLines.map(({ x1, y1, x2, y2 }, i) => (
+        <line
+          key={`lon-${i}`}
+          x1={x1} y1={y1} x2={x2} y2={y2}
+          stroke="#22D3EE"
+          strokeWidth="0.7"
+          strokeOpacity="0.3"
+        />
+      ))}
 
-          {/* Col 2 — Quick Links */}
-          <div className="flex flex-col gap-5">
-            <h4 className="text-sm font-semibold uppercase tracking-widest text-white">
-              Quick Links
-            </h4>
-            <ul className="flex flex-col gap-3">
-              {quickLinks.map((l) => (
-                <li key={l.label}>
-                  <a
-                    href={l.href}
-                    className="text-sm text-slate-400 transition-colors duration-200 hover:text-cyan-400 flex items-center gap-2 group"
-                  >
-                    <span className="h-px w-3 bg-slate-700 transition-all duration-200 group-hover:w-4 group-hover:bg-cyan-400" />
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* Outer circle */}
+      <circle cx={cx} cy={cy} r={R}
+        fill="none" stroke="#6366F1" strokeWidth="1" strokeOpacity="0.2"/>
 
-          {/* Col 3 — Services */}
-          <div className="flex flex-col gap-5">
-            <h4 className="text-sm font-semibold uppercase tracking-widest text-white">
-              Services
-            </h4>
-            <ul className="flex flex-col gap-3">
-              {serviceLinks.map((s) => (
-                <li key={s}>
-                  <a
-                    href="#services"
-                    className="text-sm text-slate-400 transition-colors duration-200 hover:text-cyan-400 flex items-center gap-2 group"
-                  >
-                    <span className="h-px w-3 bg-slate-700 transition-all duration-200 group-hover:w-4 group-hover:bg-cyan-400" />
-                    {s}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <defs>
+        <linearGradient id="globeStroke" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stopColor="#22D3EE"/>
+          <stop offset="100%" stopColor="#6366F1"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
 
-          {/* Col 4 — Contact */}
-          <div className="flex flex-col gap-5">
-            <h4 className="text-sm font-semibold uppercase tracking-widest text-white">
-              Contact
-            </h4>
-            <ul className="flex flex-col gap-4">
-              {contactInfo.map((c) => (
-                <li key={c.value} className="flex items-start gap-3 text-sm text-slate-400">
-                  <span className="mt-0.5 text-cyan-400/70">{c.icon}</span>
-                  <span className="leading-relaxed">{c.value}</span>
-                </li>
-              ))}
-            </ul>
+/* ─────────────────────────────────────────────────────────
+   METRIC CARD  — scroll-reveal count-up
+───────────────────────────────────────────────────────── */
+function MetricCard({ value, label, delay, visible }) {
+  return (
+    <div
+      className="text-center transition-all duration-700 cursor-default"
+      style={{
+        opacity:    visible ? 1 : 0,
+        transform:  visible ? 'translateY(0)' : 'translateY(24px)',
+        transitionDelay: `${delay}ms`,
+      }}
+    >
+      <div
+        className="text-5xl font-black bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent"
+        style={{ fontVariantNumeric: 'tabular-nums' }}
+      >
+        {value}
+      </div>
+      <p className="mt-2 text-sm text-slate-400">{label}</p>
+    </div>
+  )
+}
 
-            {/* CTA */}
+/* ─────────────────────────────────────────────────────────
+   MAIN FOOTER COMPONENT
+───────────────────────────────────────────────────────── */
+export default function Footer() {
+  const [visible, setVisible] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true) },
+      { threshold: 0.05 }
+    )
+    if (ref.current) obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [])
+
+  /* Link hover helper */
+  const linkHover = (e) => {
+    e.currentTarget.style.color     = '#22D3EE'
+    e.currentTarget.style.transform = 'translateX(6px)'
+  }
+  const linkLeave = (e) => {
+    e.currentTarget.style.color     = ''
+    e.currentTarget.style.transform = ''
+  }
+
+  return (
+    <footer
+      ref={ref}
+      className="relative overflow-hidden"
+      style={{ backgroundColor: '#020617' }}
+    >
+      {/* ── Keyframes ── */}
+      <style>{`
+        @keyframes globeSpin {
+          from { transform: rotate(0deg);   }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes glowPulse {
+          0%,100% { opacity:.10; transform:scale(1);    }
+          50%      { opacity:.14; transform:scale(1.06); }
+        }
+        @keyframes fadeUp {
+          from { opacity:0; transform:translateY(28px); }
+          to   { opacity:1; transform:translateY(0);    }
+        }
+      `}</style>
+
+      {/* ── Ambient glows ── */}
+      <div className="pointer-events-none absolute rounded-full"
+        style={{
+          width:700, height:700, top:'-5%', left:'-10%',
+          background:'radial-gradient(circle, #22D3EE 0%, transparent 65%)',
+          filter:'blur(250px)', opacity:.10,
+          animation:'glowPulse 8s ease-in-out infinite',
+        }}/>
+      <div className="pointer-events-none absolute rounded-full"
+        style={{
+          width:700, height:700, bottom:'-10%', right:'-10%',
+          background:'radial-gradient(circle, #6366F1 0%, transparent 65%)',
+          filter:'blur(250px)', opacity:.10,
+          animation:'glowPulse 8s ease-in-out 4s infinite',
+        }}/>
+
+      {/* ── Floating wireframe globe ── */}
+      <div
+        className="pointer-events-none absolute select-none"
+        aria-hidden
+        style={{
+          width:900, height:900,
+          right:'-15%', bottom:'-20%',
+          opacity:.05,
+          zIndex:0,
+        }}
+      >
+        <WireframeGlobe/>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          CTA SECTION
+      ════════════════════════════════════════════ */}
+      <div className="relative z-10 py-32 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
+
+          {/* Label */}
+          <p
+            className="text-sm font-[700] uppercase tracking-[0.4em] text-cyan-400"
+            style={{
+              opacity:   visible ? 1 : 0,
+              animation: visible ? 'fadeUp .7s ease-out .0s both' : 'none',
+            }}
+          >
+            Let's Build Together
+          </p>
+
+          {/* Heading */}
+          <h2
+            className="mt-5 font-black text-white leading-[1.08] tracking-tight"
+            style={{
+              fontSize:  'clamp(2.4rem, 6vw, 4rem)',
+              maxWidth:  900,
+              opacity:   visible ? 1 : 0,
+              animation: visible ? 'fadeUp .7s ease-out .12s both' : 'none',
+            }}
+          >
+            Ready To Build The Next<br className="hidden sm:block"/>
+            Big{' '}
+            <span className="bg-gradient-to-r from-[#22D3EE] via-[#6366F1] to-[#a78bfa] bg-clip-text text-transparent">
+              Digital Product?
+            </span>
+          </h2>
+
+          {/* Description */}
+          <p
+            className="mt-7 text-lg text-slate-300 leading-relaxed max-w-3xl"
+            style={{
+              opacity:   visible ? 1 : 0,
+              animation: visible ? 'fadeUp .7s ease-out .24s both' : 'none',
+            }}
+          >
+            From product strategy and UX design to engineering and growth, we help
+            ambitious businesses create scalable digital experiences.
+          </p>
+
+          {/* Buttons */}
+          <div
+            className="mt-12 flex flex-col sm:flex-row items-center gap-5"
+            style={{
+              opacity:   visible ? 1 : 0,
+              animation: visible ? 'fadeUp .7s ease-out .36s both' : 'none',
+            }}
+          >
+            {/* Primary */}
             <a
               href="#contact"
-              className="mt-2 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(34,211,238,0.2)] self-start"
+              className="inline-flex items-center justify-center gap-2 rounded-full text-base font-[700] text-white transition-all duration-300"
+              style={{
+                height:     60,
+                padding:    '0 36px',
+                background: 'linear-gradient(135deg, #6366F1, #22D3EE)',
+                boxShadow:  '0 0 0 rgba(34,211,238,0)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-3px) scale(1.03)'
+                e.currentTarget.style.boxShadow = '0 0 40px rgba(34,211,238,.35)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = ''
+                e.currentTarget.style.boxShadow = '0 0 0 rgba(34,211,238,0)'
+              }}
             >
-              Start a Project
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+              Start Your Project
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
+            </a>
+
+            {/* Secondary */}
+            <a
+              href="#contact"
+              className="inline-flex items-center justify-center gap-2 rounded-full text-base font-[600] text-white border border-white/10 backdrop-blur-xl transition-all duration-300"
+              style={{
+                height:     60,
+                padding:    '0 36px',
+                background: 'rgba(255,255,255,.05)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform   = 'translateY(-3px)'
+                e.currentTarget.style.borderColor = 'rgba(34,211,238,.5)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform   = ''
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,.10)'
+              }}
+            >
+              Schedule A Call
             </a>
           </div>
 
         </div>
+      </div>
 
-        {/* ── Divider ── */}
-        <div className="mt-14 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      {/* ════════════════════════════════════════════
+          METRICS STRIP
+      ════════════════════════════════════════════ */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20">
+        {/* Top rule */}
+        <div className="h-px w-full mb-16"
+          style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent)'}}/>
 
-        {/* ── Bottom bar ── */}
-        <div className="mt-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+          {metrics.map((m, i) => (
+            <MetricCard
+              key={m.label}
+              value={m.value}
+              label={m.label}
+              delay={i * 80}
+              visible={visible}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          FOOTER CONTENT
+      ════════════════════════════════════════════ */}
+      <div
+        className="relative z-10 border-t border-white/10 py-20"
+        style={{ backdropFilter: 'blur(0px)' }}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-16">
+
+            {/* Col 1 — Brand */}
+            <div
+              className="flex flex-col gap-6 transition-all duration-700"
+              style={{
+                opacity:   visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: '0ms',
+              }}
+            >
+              <a href="/" className="flex items-baseline gap-2"
+                style={{fontFamily:'Space Grotesk, Inter, system-ui'}}>
+                <span className="text-xl font-[800] tracking-tight text-white">JIGYASA</span>
+                <span className="text-[13px] font-[500] text-[#22D3EE]"
+                  style={{letterSpacing:'.08em'}}>TECHNOLOGIES</span>
+              </a>
+
+              <p className="text-sm text-slate-400 leading-relaxed max-w-[220px]">
+                We craft scalable digital products through strategy, design, and engineering
+                for ambitious organizations worldwide.
+              </p>
+
+              {/* Social icons — 48px glassmorphism */}
+              <div className="flex items-center gap-3">
+                {socials.map(s => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    aria-label={s.label}
+                    className="flex items-center justify-center rounded-full border border-white/10 text-slate-400 transition-all duration-300"
+                    style={{
+                      width:48, height:48,
+                      background:'rgba(255,255,255,.05)',
+                      backdropFilter:'blur(12px)',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform  = 'scale(1.15)'
+                      e.currentTarget.style.color      = '#22D3EE'
+                      e.currentTarget.style.borderColor = 'rgba(34,211,238,.35)'
+                      e.currentTarget.style.boxShadow  = '0 0 20px rgba(34,211,238,.2)'
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform  = ''
+                      e.currentTarget.style.color      = ''
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,.10)'
+                      e.currentTarget.style.boxShadow  = ''
+                    }}
+                  >
+                    {s.icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Col 2 — Quick Links */}
+            <div
+              className="flex flex-col gap-6 transition-all duration-700"
+              style={{
+                opacity:   visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: '80ms',
+              }}
+            >
+              <h4 className="text-[11px] font-[700] uppercase tracking-[0.3em] text-white">
+                Quick Links
+              </h4>
+              <ul className="flex flex-col gap-3">
+                {quickLinks.map(l => (
+                  <li key={l.label}>
+                    <a
+                      href={l.href}
+                      className="text-sm text-slate-400"
+                      style={{
+                        display:'inline-flex', alignItems:'center', gap:8,
+                        transition:'color 200ms, transform 200ms',
+                      }}
+                      onMouseEnter={linkHover}
+                      onMouseLeave={linkLeave}
+                    >
+                      <span
+                        className="inline-block rounded-full"
+                        style={{
+                          width:4, height:4,
+                          background:'rgba(255,255,255,.2)',
+                          flexShrink:0,
+                          transition:'background 200ms',
+                        }}
+                      />
+                      {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 3 — Services */}
+            <div
+              className="flex flex-col gap-6 transition-all duration-700"
+              style={{
+                opacity:   visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: '160ms',
+              }}
+            >
+              <h4 className="text-[11px] font-[700] uppercase tracking-[0.3em] text-white">
+                Services
+              </h4>
+              <ul className="flex flex-col gap-3">
+                {serviceLinks.map(s => (
+                  <li key={s.label}>
+                    <a
+                      href={s.href}
+                      className="text-sm text-slate-400"
+                      style={{
+                        display:'inline-flex', alignItems:'center', gap:8,
+                        transition:'color 200ms, transform 200ms',
+                      }}
+                      onMouseEnter={linkHover}
+                      onMouseLeave={linkLeave}
+                    >
+                      <span
+                        className="inline-block rounded-full"
+                        style={{width:4,height:4,background:'rgba(255,255,255,.2)',flexShrink:0}}
+                      />
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 4 — Contact */}
+            <div
+              className="flex flex-col gap-6 transition-all duration-700"
+              style={{
+                opacity:   visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transitionDelay: '240ms',
+              }}
+            >
+              <h4 className="text-[11px] font-[700] uppercase tracking-[0.3em] text-white">
+                Contact
+              </h4>
+              <ul className="flex flex-col gap-4">
+                {contactItems.map(c => (
+                  <li key={c.value}>
+                    <a
+                      href={c.href}
+                      className="flex items-start gap-3 text-sm text-slate-400 transition-colors duration-200 hover:text-white"
+                    >
+                      <span className="mt-0.5 text-cyan-400/60 flex-shrink-0">{c.icon}</span>
+                      <span className="leading-relaxed">{c.value}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Mini CTA */}
+              <a
+                href="#contact"
+                className="mt-1 inline-flex items-center gap-2 self-start text-sm font-[700] transition-all duration-300"
+                style={{
+                  background:    'linear-gradient(135deg,#6366F1,#22D3EE)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateX(4px)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = ''
+                }}
+              >
+                Start a Project
+                <svg className="h-4 w-4 flex-shrink-0" fill="none" stroke="url(#arrowGrad)"
+                  strokeWidth="2" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="arrowGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#6366F1"/>
+                      <stop offset="100%" stopColor="#22D3EE"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* ════════════════════════════════════════════
+          BOTTOM BAR
+      ════════════════════════════════════════════ */}
+      <div className="relative z-10 border-t border-white/10 py-8">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
             © 2025 Jigyasa Technologies. All Rights Reserved.
+          </p>
+          <p className="text-xs text-slate-600 text-center">
+            Engineering Digital Products Since 2015
           </p>
           <p className="text-xs text-slate-600">
             Built with ❤️ in India
           </p>
         </div>
-
       </div>
+
     </footer>
   )
 }

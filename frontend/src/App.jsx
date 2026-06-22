@@ -1,4 +1,5 @@
-﻿import Navbar from "./components/Navbar";
+﻿import { ThemeProvider } from './context/ThemeContext'
+import Navbar from "./components/Navbar";
 import Hero from "./components/hero/Hero";
 import FeaturedCaseStudy from "./components/case-study/FeaturedCaseStudy";
 import ServicesSection from "./components/services/ServicesSection";
@@ -12,9 +13,9 @@ import ContactSection from "./components/ContactSection";
 import CallToAction from "./components/CallToAction";
 import Footer from "./components/Footer";
 
-function App() {
+function AppContent() {
   return (
-    <div className="min-h-screen bg-[#020617]">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
       <Navbar />
       <Hero />
       <FeaturedCaseStudy />
@@ -29,7 +30,13 @@ function App() {
       <CallToAction />
       <Footer />
     </div>
-  );
+  )
 }
 
-export default App;
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  )
+}
