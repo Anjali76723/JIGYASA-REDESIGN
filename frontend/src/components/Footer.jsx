@@ -1,23 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 /* ─────────────────────────────────────────────────────────
    DATA
 ───────────────────────────────────────────────────────── */
 const quickLinks = [
-  { label: 'Home',       href: '#'          },
-  { label: 'Services',   href: '#services'  },
-  { label: 'Work',       href: '#work'      },
-  { label: 'Industries', href: '#industries'},
-  { label: 'About',      href: '#about'     },
-  { label: 'Contact',    href: '#contact'   },
+  { label: 'Home',       href: '/'          },
+  { label: 'Services',   href: '/services'  },
+  { label: 'Work',       href: '/work'      },
+  { label: 'Industries', href: '/industries'},
+  { label: 'About',      href: '/about'     },
+  { label: 'Contact',    href: '/contact'   },
 ]
 
 const serviceLinks = [
-  { label: 'Web Development',  href: '#services' },
-  { label: 'Mobile Apps',      href: '#services' },
-  { label: 'UI/UX Design',     href: '#services' },
-  { label: 'Cloud & DevOps',   href: '#services' },
-  { label: 'AI Solutions',     href: '#services' },
+  { label: 'Web Development',  href: '/services' },
+  { label: 'Mobile Apps',      href: '/services' },
+  { label: 'UI/UX Design',     href: '/services' },
+  { label: 'Cloud & DevOps',   href: '/services' },
+  { label: 'AI Solutions',     href: '/services' },
 ]
 
 const contactItems = [
@@ -281,110 +282,6 @@ export default function Footer() {
       </div>
 
       {/* ════════════════════════════════════════════
-          CTA SECTION
-      ════════════════════════════════════════════ */}
-      <div className="relative z-10 py-32 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-
-          {/* Label */}
-          <p
-            className="text-sm font-[700] uppercase tracking-[0.4em] text-cyan-400"
-            style={{
-              opacity:   visible ? 1 : 0,
-              animation: visible ? 'fadeUp .7s ease-out .0s both' : 'none',
-            }}
-          >
-            Let's Build Together
-          </p>
-
-          {/* Heading */}
-          <h2
-            className="mt-5 font-black text-white leading-[1.08] tracking-tight"
-            style={{
-              fontSize:  'clamp(2.4rem, 6vw, 4rem)',
-              maxWidth:  900,
-              opacity:   visible ? 1 : 0,
-              animation: visible ? 'fadeUp .7s ease-out .12s both' : 'none',
-            }}
-          >
-            Ready To Build The Next<br className="hidden sm:block"/>
-            Big{' '}
-            <span className="bg-gradient-to-r from-[#22D3EE] via-[#6366F1] to-[#a78bfa] bg-clip-text text-transparent">
-              Digital Product?
-            </span>
-          </h2>
-
-          {/* Description */}
-          <p
-            className="mt-7 text-lg text-slate-300 leading-relaxed max-w-3xl"
-            style={{
-              opacity:   visible ? 1 : 0,
-              animation: visible ? 'fadeUp .7s ease-out .24s both' : 'none',
-            }}
-          >
-            From product strategy and UX design to engineering and growth, we help
-            ambitious businesses create scalable digital experiences.
-          </p>
-
-          {/* Buttons */}
-          <div
-            className="mt-12 flex flex-col sm:flex-row items-center gap-5"
-            style={{
-              opacity:   visible ? 1 : 0,
-              animation: visible ? 'fadeUp .7s ease-out .36s both' : 'none',
-            }}
-          >
-            {/* Primary */}
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full text-base font-[700] text-white transition-all duration-300"
-              style={{
-                height:     60,
-                padding:    '0 36px',
-                background: 'linear-gradient(135deg, #6366F1, #22D3EE)',
-                boxShadow:  '0 0 0 rgba(34,211,238,0)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-3px) scale(1.03)'
-                e.currentTarget.style.boxShadow = '0 0 40px rgba(34,211,238,.35)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = ''
-                e.currentTarget.style.boxShadow = '0 0 0 rgba(34,211,238,0)'
-              }}
-            >
-              Start Your Project
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </a>
-
-            {/* Secondary */}
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center gap-2 rounded-full text-base font-[600] text-white border border-white/10 backdrop-blur-xl transition-all duration-300"
-              style={{
-                height:     60,
-                padding:    '0 36px',
-                background: 'rgba(255,255,255,.05)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform   = 'translateY(-3px)'
-                e.currentTarget.style.borderColor = 'rgba(34,211,238,.5)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform   = ''
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,.10)'
-              }}
-            >
-              Schedule A Call
-            </a>
-          </div>
-
-        </div>
-      </div>
-
-      {/* ════════════════════════════════════════════
           METRICS STRIP
       ════════════════════════════════════════════ */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20">
@@ -424,12 +321,12 @@ export default function Footer() {
                 transitionDelay: '0ms',
               }}
             >
-              <a href="/" className="flex items-baseline gap-2"
+              <Link to="/" className="flex items-baseline gap-2"
                 style={{fontFamily:'Space Grotesk, Inter, system-ui'}}>
                 <span className="text-xl font-[800] tracking-tight text-white">JIGYASA</span>
                 <span className="text-[13px] font-[500] text-[#22D3EE]"
                   style={{letterSpacing:'.08em'}}>TECHNOLOGIES</span>
-              </a>
+              </Link>
 
               <p className="text-sm text-slate-400 leading-relaxed max-w-[220px]">
                 We craft scalable digital products through strategy, design, and engineering
@@ -483,8 +380,8 @@ export default function Footer() {
               <ul className="flex flex-col gap-3">
                 {quickLinks.map(l => (
                   <li key={l.label}>
-                    <a
-                      href={l.href}
+                    <Link
+                      to={l.href}
                       className="text-sm text-slate-400"
                       style={{
                         display:'inline-flex', alignItems:'center', gap:8,
@@ -503,7 +400,7 @@ export default function Footer() {
                         }}
                       />
                       {l.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -524,8 +421,8 @@ export default function Footer() {
               <ul className="flex flex-col gap-3">
                 {serviceLinks.map(s => (
                   <li key={s.label}>
-                    <a
-                      href={s.href}
+                    <Link
+                      to={s.href}
                       className="text-sm text-slate-400"
                       style={{
                         display:'inline-flex', alignItems:'center', gap:8,
@@ -539,7 +436,7 @@ export default function Footer() {
                         style={{width:4,height:4,background:'rgba(255,255,255,.2)',flexShrink:0}}
                       />
                       {s.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -572,8 +469,8 @@ export default function Footer() {
               </ul>
 
               {/* Mini CTA */}
-              <a
-                href="#contact"
+              <Link
+                to="/contact"
                 className="mt-1 inline-flex items-center gap-2 self-start text-sm font-[700] transition-all duration-300"
                 style={{
                   background:    'linear-gradient(135deg,#6366F1,#22D3EE)',
@@ -599,7 +496,7 @@ export default function Footer() {
                   </defs>
                   <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-              </a>
+              </Link>
             </div>
 
           </div>
