@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
+import { useContactModal } from '../App'
 
 const navLinks = [
   { label: 'Services',   href: '/services'   },
@@ -40,6 +41,7 @@ export default function Navbar() {
 
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
+  const { openModal } = useContactModal()
 
   const bg = scrolled
     ? 'bg-[rgba(7,16,36,0.80)] backdrop-blur-[30px] shadow-[0_10px_40px_rgba(0,0,0,.32),0_20px_60px_rgba(99,102,241,.10)]'
@@ -122,6 +124,7 @@ export default function Navbar() {
 
             {/* Schedule Call — glass */}
             <button
+              onClick={openModal}
               className="
                 px-5 py-[10px] rounded-[999px]
                 text-[14px] font-[500] text-white
@@ -187,6 +190,7 @@ export default function Navbar() {
         onNavClick={handleClick}
         isDark={isDark}
         onToggleTheme={toggleTheme}
+        onScheduleCall={openModal}
       />
 
       {/* Layout spacer */}
@@ -286,7 +290,7 @@ function HamburgerIcon({ open }) {
 /* ══════════════════════════════════════════════
    MOBILE DRAWER
 ══════════════════════════════════════════════ */
-function MobileDrawer({ open, onClose, navLinks, activePath, onNavClick, isDark, onToggleTheme }) {
+function MobileDrawer({ open, onClose, navLinks, activePath, onNavClick, isDark, onToggleTheme, onScheduleCall }) {
   useEffect(() => {
     const fn = e => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', fn)
@@ -398,7 +402,7 @@ function MobileDrawer({ open, onClose, navLinks, activePath, onNavClick, isDark,
         {/* Mobile CTA */}
         <div className="flex flex-col gap-3">
           <button
-            onClick={onClose}
+            onClick={() => { onClose(); onScheduleCall() }}
             className="w-full h-14 rounded-[999px] text-[15px] font-[500] text-white border border-white/10 transition-all duration-200 hover:border-white/20"
             style={{ background: 'rgba(255,255,255,.04)', fontFamily: 'Space Grotesk, Inter, system-ui' }}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.08)'}
