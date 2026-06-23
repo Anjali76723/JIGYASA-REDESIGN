@@ -1,14 +1,14 @@
-import Header from '../components/layout/Header'
-import ProcessSection from '../components/sections/ProcessSection'
-import CTA from '../components/shared/CTA'
-import Footer from '../components/layout/Footer'
+import Navbar from '../components/Navbar'
+import ProcessSection from '../components/ProcessSection'
+import CallToAction from '../components/CallToAction'
+import Footer from '../components/Footer'
 
 export default function Process() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Header />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <Navbar />
       <ProcessSection />
-      <CTA title="Ready to Start Your Project?" subtitle="Let's begin the journey together" buttonText="Get in Touch" />
+      <CallToAction />
       <Footer />
     </div>
   )

@@ -1,14 +1,12 @@
-import Header from '../components/layout/Header'
-import ContactInfo from '../components/sections/ContactInfo'
-import ContactForm from '../components/sections/ContactForm'
-import Footer from '../components/layout/Footer'
+import Navbar from '../components/Navbar'
+import ContactSection from '../components/ContactSection'
+import Footer from '../components/Footer'
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Header />
-      <ContactInfo />
-      <ContactForm />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <Navbar />
+      <ContactSection />
       <Footer />
     </div>
   )

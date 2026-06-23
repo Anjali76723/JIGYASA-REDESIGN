@@ -1,33 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 
 const navLinks = [
-  { label: 'Services',   href: '#services'   },
-  { label: 'Work',       href: '#work'       },
-  { label: 'Process',    href: '#process'    },
-  { label: 'Industries', href: '#industries' },
-  { label: 'About',      href: '#about'      },
-  { label: 'Contact',    href: '#contact'    },
+  { label: 'Services',   href: '/services'   },
+  { label: 'Work',       href: '/work'       },
+  { label: 'Process',    href: '/process'    },
+  { label: 'Industries', href: '/industries' },
+  { label: 'About',      href: '/about'      },
+  { label: 'Contact',    href: '/contact'    },
 ]
-
-function smoothScroll(href, cb) {
-  const el = document.getElementById(href.replace('#', ''))
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
-    window.history.replaceState(null, '', href)
-  }
-  cb?.()
-}
 
 /* ══════════════════════════════════════════════
    NAVBAR
 ══════════════════════════════════════════════ */
 export default function Navbar() {
-  const [open,       setOpen]       = useState(false)
-  const [scrolled,   setScrolled]   = useState(false)
-  const [activeHash, setActiveHash] = useState('')
+  const location = useLocation()
+  const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   /* scroll state */
   useEffect(() => {
@@ -36,42 +28,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  /* active section — IntersectionObserver */
-  useEffect(() => {
-    const ids     = navLinks.map(l => l.href.replace('#', ''))
-    const visible = {}
-    const obs     = []
-
-    const pick = () => {
-      for (const id of ids) {
-        if (visible[id]) { setActiveHash('#' + id); return }
-      }
-    }
-
-    ids.forEach(id => {
-      const el = document.getElementById(id)
-      if (!el) return
-      const o = new IntersectionObserver(
-        ([e]) => { visible[id] = e.isIntersecting; pick() },
-        { rootMargin: '-30% 0px -60% 0px', threshold: 0 }
-      )
-      o.observe(el)
-      obs.push(o)
-    })
-
-    return () => obs.forEach(o => o.disconnect())
-  }, [])
-
   /* lock scroll when drawer open */
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  const handleClick = (e, href) => {
-    e.preventDefault()
-    smoothScroll(href, () => setOpen(false))
-    setActiveHash(href)
+  const handleClick = () => {
+    setOpen(false)
   }
 
   const { theme, toggleTheme } = useTheme()
@@ -99,8 +63,8 @@ export default function Navbar() {
         <div className={`flex items-center justify-between px-5 sm:px-7 transition-all duration-300 ${h}`}>
 
           {/* ── Logo ── */}
-          <a
-            href="/"
+          <Link
+            to="/"
             className="flex items-baseline gap-[7px] flex-shrink-0 group"
             style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
           >
@@ -113,17 +77,17 @@ export default function Navbar() {
             >
               TECHNOLOGIES
             </span>
-          </a>
+          </Link>
 
           {/* ── Center nav links (desktop) ── */}
           <ul className="hidden lg:flex items-center gap-1" style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}>
             {navLinks.map(l => {
-              const active = activeHash === l.href
+              const active = location.pathname === l.href
               return (
                 <li key={l.href}>
-                  <a
-                    href={l.href}
-                    onClick={e => handleClick(e, l.href)}
+                  <Link
+                    to={l.href}
+                    onClick={handleClick}
                     aria-current={active ? 'page' : undefined}
                     className={`
                       relative inline-flex items-center
@@ -144,7 +108,7 @@ export default function Navbar() {
                     } : {}}
                   >
                     {l.label}
-                  </a>
+                  </Link>
                 </li>
               )
             })}
@@ -177,8 +141,9 @@ export default function Navbar() {
             </button>
 
             {/* Start Project — gradient */}
-            <button
-              onClick={e => { e.preventDefault(); smoothScroll('#contact') }}
+            <Link
+              to="/contact"
+              onClick={handleClick}
               className="
                 px-6 py-[10px] rounded-[999px]
                 text-[14px] font-[600] text-white
@@ -191,7 +156,7 @@ export default function Navbar() {
               style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
             >
               Start Project
-            </button>
+            </Link>
           </div>
 
           {/* ── Mobile hamburger ── */}
@@ -218,7 +183,7 @@ export default function Navbar() {
         open={open}
         onClose={() => setOpen(false)}
         navLinks={navLinks}
-        activeHash={activeHash}
+        activePath={location.pathname}
         onNavClick={handleClick}
         isDark={isDark}
         onToggleTheme={toggleTheme}
@@ -321,7 +286,7 @@ function HamburgerIcon({ open }) {
 /* ══════════════════════════════════════════════
    MOBILE DRAWER
 ══════════════════════════════════════════════ */
-function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark, onToggleTheme }) {
+function MobileDrawer({ open, onClose, navLinks, activePath, onNavClick, isDark, onToggleTheme }) {
   useEffect(() => {
     const fn = e => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', fn)
@@ -353,8 +318,8 @@ function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark,
       >
         {/* Header row */}
         <div className="flex items-center justify-between mb-10">
-          <a
-            href="/"
+          <Link
+            to="/"
             onClick={onClose}
             className="flex items-baseline gap-[7px]"
             style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
@@ -363,7 +328,7 @@ function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark,
             <span className="text-[13px] font-[500] text-[#22D3EE]" style={{ letterSpacing: '.08em' }}>
               TECHNOLOGIES
             </span>
-          </a>
+          </Link>
 
           <button
             onClick={onClose}
@@ -381,7 +346,7 @@ function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark,
         <nav className="flex-1">
           <ul className="flex flex-col">
             {navLinks.map((l, i) => {
-              const active = activeHash === l.href
+              const active = activePath === l.href
               return (
                 <li
                   key={l.href}
@@ -391,9 +356,9 @@ function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark,
                     transition: `opacity 280ms ${i * 45}ms, transform 280ms ${i * 45}ms`,
                   }}
                 >
-                  <a
-                    href={l.href}
-                    onClick={e => onNavClick(e, l.href)}
+                  <Link
+                    to={l.href}
+                    onClick={onNavClick}
                     className="
                       flex items-center justify-between
                       py-5 border-b border-white/[.04]
@@ -420,7 +385,7 @@ function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark,
                     >
                       <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
-                  </a>
+                  </Link>
                 </li>
               )
             })}
@@ -442,13 +407,14 @@ function MobileDrawer({ open, onClose, navLinks, activeHash, onNavClick, isDark,
             Schedule Call
           </button>
 
-          <button
-            onClick={() => { onClose(); smoothScroll('#contact') }}
-            className="w-full h-14 rounded-[999px] text-[15px] font-[600] text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] transition-all duration-200 hover:shadow-[0_0_40px_rgba(34,211,238,.20)] active:scale-[.99]"
+          <Link
+            to="/contact"
+            onClick={onClose}
+            className="w-full h-14 rounded-[999px] text-[15px] font-[600] text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] transition-all duration-200 hover:shadow-[0_0_40px_rgba(34,211,238,.20)] active:scale-[.99] text-center flex items-center justify-center"
             style={{ fontFamily: 'Space Grotesk, Inter, system-ui' }}
           >
             Start Project
-          </button>
+          </Link>
         </div>
       </div>
     </div>

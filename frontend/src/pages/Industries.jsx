@@ -1,14 +1,14 @@
-import Header from '../components/layout/Header'
-import IndustriesSection from '../components/sections/IndustriesSection'
-import CTA from '../components/shared/CTA'
-import Footer from '../components/layout/Footer'
+import Navbar from '../components/Navbar'
+import IndustriesSection from '../components/IndustriesSection'
+import CallToAction from '../components/CallToAction'
+import Footer from '../components/Footer'
 
 export default function Industries() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Header />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <Navbar />
       <IndustriesSection />
-      <CTA title="Industry-Specific Solutions?" subtitle="Let's discuss your industry needs" buttonText="Get in Touch" />
+      <CallToAction />
       <Footer />
     </div>
   )

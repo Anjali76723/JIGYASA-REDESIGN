@@ -1,16 +1,16 @@
-import Header from '../components/layout/Header'
-import AboutSection from '../components/sections/AboutSection'
-import WhyChooseUs from '../components/sections/WhyChooseUs'
-import CTA from '../components/shared/CTA'
-import Footer from '../components/layout/Footer'
+import Navbar from '../components/Navbar'
+import AboutSection from '../components/AboutSection'
+import WhyChooseUs from '../components/WhyChooseUs'
+import CallToAction from '../components/CallToAction'
+import Footer from '../components/Footer'
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Header />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <Navbar />
       <AboutSection />
       <WhyChooseUs />
-      <CTA title="Ready to Work With Us?" subtitle="Let's discuss your project" buttonText="Get in Touch" />
+      <CallToAction />
       <Footer />
     </div>
   )

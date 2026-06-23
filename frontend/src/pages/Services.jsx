@@ -1,14 +1,14 @@
-import Header from '../components/layout/Header'
-import ServicesSection from '../components/sections/ServicesSection'
-import CTA from '../components/shared/CTA'
-import Footer from '../components/layout/Footer'
+import Navbar from '../components/Navbar'
+import ServicesSection from '../components/services/ServicesSection'
+import CallToAction from '../components/CallToAction'
+import Footer from '../components/Footer'
 
 export default function Services() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Header />
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      <Navbar />
       <ServicesSection />
-      <CTA title="Need a Custom Solution?" subtitle="Let's discuss your specific requirements" buttonText="Get in Touch" />
+      <CallToAction />
       <Footer />
     </div>
   )
