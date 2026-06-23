@@ -1,42 +1,27 @@
 ﻿import { ThemeProvider } from './context/ThemeContext'
-import Navbar from "./components/Navbar";
-import Hero from "./components/hero/Hero";
-import FeaturedCaseStudy from "./components/case-study/FeaturedCaseStudy";
-import ServicesSection from "./components/services/ServicesSection";
-import ProcessSection from "./components/ProcessSection";
-import TestimonialsSection from "./components/TestimonialsSection";
-import WhyChooseUs from "./components/WhyChooseUs";
-import IndustriesSection from "./components/IndustriesSection";
-import WorkSection from "./components/WorkSection";
-import AboutSection from "./components/AboutSection";
-import ContactSection from "./components/ContactSection";
-import CallToAction from "./components/CallToAction";
-import Footer from "./components/Footer";
+import { Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import About from './pages/About'
+import Services from './pages/Services'
+import Work from './pages/Work'
+import Process from './pages/Process'
+import Industries from './pages/Industries'
+import Contact from './pages/Contact'
 
-function AppContent() {
-  return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-      <Navbar />
-      <Hero />
-      <FeaturedCaseStudy />
-      <ServicesSection />
-      <ProcessSection />
-      <TestimonialsSection />
-      <WhyChooseUs />
-      <IndustriesSection />
-      <WorkSection />
-      <AboutSection />
-      <ContactSection />
-      <CallToAction />
-      <Footer />
-    </div>
-  )
-}
-
-export default function App() {
+function App() {
   return (
     <ThemeProvider>
-      <AppContent />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/work" element={<Work />} />
+        <Route path="/process" element={<Process />} />
+        <Route path="/industries" element={<Industries />} />
+        <Route path="/contact" element={<Contact />} />
+      </Routes>
     </ThemeProvider>
   )
 }
+
+export default App
