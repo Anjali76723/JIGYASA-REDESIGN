@@ -1,490 +1,665 @@
-import React, { useEffect, useRef, useState, Suspense, lazy } from 'react'
+import { useEffect, useRef, useState, Suspense, lazy } from 'react'
 import { useTheme } from '../../context/ThemeContext'
+import EcosystemVisualization from './EcosystemVisualization'
 
 const AuroraBackground = lazy(() => import('./AuroraBackground'))
 
 /* ─────────────────────────────────────────────────────────
-   KEYFRAMES (injected once at module level)
-───────────────────────────────────────────────────────── */
-const KEYFRAMES = `
-  @keyframes heroDotPulse {
-    0%,100% { opacity:1;  transform:scale(1);   }
-    50%      { opacity:.4; transform:scale(1.6); }
-  }
-  /* #4 — dashboard float: -10px ↔ +10px, 12s */
-  @keyframes dashFloat {
-    0%   { transform: rotate(-2deg) translateY(-10px); }
-    100% { transform: rotate(-2deg) translateY( 10px); }
-  }
-  /* #4 mobile — no rotation */
-  @keyframes dashFloatMobile {
-    0%   { transform: translateY(-10px); }
-    100% { transform: translateY( 10px); }
-  }
-  /* #6 — glass shine sweep every 8s */
-  @keyframes glassShine {
-    0%,85%  { transform: translateX(-120%) skewX(-18deg); opacity:0;   }
-    87%     { opacity:.55; }
-    100%    { transform: translateX( 260%) skewX(-18deg); opacity:0;   }
-  }
-  /* #8 — staggered word reveal */
+   KEYFRAMES
+─────────────────────────────────────────────────────────── */
+const KF = `
+  /* Word reveal — blur eases from 4px (not 8) for a crisper, more premium feel */
   @keyframes wordReveal {
-    from { opacity:0; transform:translateY(18px); filter:blur(4px); }
+    from { opacity:0; transform:translateY(20px); filter:blur(4px); }
     to   { opacity:1; transform:translateY(0);    filter:blur(0);   }
   }
-  /* #9 — gradient sweep on "Scale" */
+  /* "Scale" gradient sweep */
   @keyframes scaleSweep {
     0%   { background-position: 0%   50%; }
     100% { background-position: 200% 50%; }
   }
-  /* horizontal beam */
-  @keyframes beamPan {
-    0%   { transform: translateX(-100%) scaleY(1);   opacity:0;   }
-    10%  { opacity:1; }
-    90%  { opacity:.7; }
-    100% { transform: translateX( 110%) scaleY(1);   opacity:0;   }
+  /* "Scale" ambient glow pulse */
+  @keyframes scaleGlow {
+    0%,100% { text-shadow: 0 0 0px transparent; }
+    50%     { text-shadow: 0 0 28px rgba(34,211,238,0.45), 0 0 60px rgba(99,102,241,0.20); }
+  }
+  /* Light sweep across the heading block every ~7s */
+  @keyframes headingSweep {
+    0%,82%  { transform:translateX(-110%) skewX(-14deg); opacity:0; }
+    84%     { opacity:1; }
+    100%    { transform:translateX(210%)  skewX(-14deg); opacity:0; }
+  }
+  @keyframes badgeShimmer {
+    0%,88%  { transform:translateX(-130%) skewX(-16deg); opacity:0;   }
+    90%     { opacity:.45; }
+    100%    { transform:translateX(270%)  skewX(-16deg); opacity:0;   }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0);    }
+  }
+  @keyframes arrowNudge {
+    0%,100% { transform:translateX(0);   }
+    50%     { transform:translateX(5px); }
+  }
+  @keyframes rayDrift {
+    0%   { transform:translateX(-120%) rotate(12deg); opacity:0;   }
+    6%   { opacity:.7; }
+    94%  { opacity:.4; }
+    100% { transform:translateX(220%)  rotate(12deg); opacity:0;   }
+  }
+  @keyframes metricIn {
+    from { opacity:0; transform:translateY(16px) scale(.96); }
+    to   { opacity:1; transform:translateY(0)    scale(1);   }
+  }
+  @keyframes countPop {
+    0%   { transform:scale(1); }
+    40%  { transform:scale(1.12); }
+    100% { transform:scale(1); }
+  }
+  @keyframes heroFloat {
+    0%,100% { transform:translateY(0px);   }
+    50%     { transform:translateY(-12px); }
+  }
+  @keyframes sepGlow {
+    0%,100% { opacity:.18; }
+    50%     { opacity:.55; }
   }
 `
 
-/* ─────────────────────────────────────────────
-   ANIMATED LINE CHART (unchanged)
-───────────────────────────────────────────── */
-function HeroLineChart() {
-  const [drawn, setDrawn] = useState(false)
-  const ref = useRef(null)
+/* ─────────────────────────────────────────────────────────
+   COUNT-UP — starts immediately when trigger=true
+─────────────────────────────────────────────────────────── */
+function useCountUp(end, trigger, duration = 1600) {
+  const [val, setVal] = useState(0)
+  const raf = useRef(null)
 
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setDrawn(true); obs.disconnect() } },
-      { threshold: 0.3 }
-    )
-    if (ref.current) obs.observe(ref.current)
-    return () => obs.disconnect()
+    if (!trigger) return
+    const start = performance.now()
+    const step = (now) => {
+      const p = Math.min((now - start) / duration, 1)
+      const e = 1 - Math.pow(1 - p, 3)
+      setVal(Math.round(end * e))
+      if (p < 1) raf.current = requestAnimationFrame(step)
+    }
+    raf.current = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf.current)
+  }, [end, trigger, duration])
+
+  return val
+}
+
+/* ─────────────────────────────────────────────────────────
+   METRIC CARD
+─────────────────────────────────────────────────────────── */
+const METRICS = [
+  { end: 50,  suffix: '+', label: 'Projects'    },
+  { end: 20,  suffix: '+', label: 'Experts'     },
+  { end: 15,  suffix: '+', label: 'Industries'  },
+  { end: 98,  suffix: '%', label: 'Satisfaction'},
+]
+
+function MetricCard({ end, suffix, label, delay, trigger }) {
+  const [hov, setHov] = useState(false)
+  const count = useCountUp(end, trigger)
+
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display:       'flex',
+        flexDirection: 'column',
+        alignItems:    'center',
+        padding:       '12px 8px',
+        borderRadius:  16,
+        border:        `1px solid ${hov ? 'rgba(34,211,238,0.35)' : 'rgba(255,255,255,0.08)'}`,
+        background:    hov
+          ? 'linear-gradient(135deg, rgba(34,211,238,0.08), rgba(99,102,241,0.06))'
+          : 'rgba(255,255,255,0.03)',
+        boxShadow:     hov ? '0 0 28px rgba(34,211,238,0.12)' : 'none',
+        cursor:        'default',
+        transition:    'border-color 260ms, background 260ms, box-shadow 260ms',
+        opacity:       0,
+        animation:     `metricIn 0.55s cubic-bezier(.22,1,.36,1) ${delay}s forwards`,
+      }}
+    >
+      <span
+        style={{
+          fontSize:             '1.6rem',
+          fontWeight:           900,
+          lineHeight:           1,
+          fontVariantNumeric:   'tabular-nums',
+          backgroundImage:      'linear-gradient(90deg,#22D3EE,#A78BFA)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor:  'transparent',
+          backgroundClip:       'text',
+          animation:            trigger ? `countPop 0.4s ease ${delay + 0.4}s` : 'none',
+          fontFamily:           'Space Grotesk, Inter, system-ui',
+        }}
+      >
+        {count}{suffix}
+      </span>
+      <span style={{
+        marginTop:     5,
+        fontSize:      '9.5px',
+        fontWeight:    600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.12em',
+        color:         'rgba(148,163,184,0.75)',
+        textAlign:     'center',
+        fontFamily:    'Space Grotesk, Inter, system-ui',
+      }}>
+        {label}
+      </span>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────
+   ANIMATED HEADING
+   — tighter stagger (0.08s gaps feel more cohesive)
+   — light sweep overlay runs every ~7s
+   — mouse parallax on the whole heading block
+   — "Scale" gets ambient glow pulse on top of gradient sweep
+─────────────────────────────────────────────────────────── */
+function Heading() {
+  const blockRef = useRef(null)
+
+  /* Subtle mouse parallax — moves at most ±6px */
+  useEffect(() => {
+    const el = blockRef.current
+    if (!el) return
+    let tx = 0, ty = 0
+    let cx = 0, cy = 0
+    let raf
+
+    const onMove = (e) => {
+      const { innerWidth: W, innerHeight: H } = window
+      tx = ((e.clientX / W) - 0.5) * -12
+      ty = ((e.clientY / H) - 0.5) * -6
+    }
+
+    const tick = () => {
+      cx += (tx - cx) * 0.08
+      cy += (ty - cy) * 0.08
+      if (el) el.style.transform = `translate(${cx.toFixed(2)}px,${cy.toFixed(2)}px)`
+      raf = requestAnimationFrame(tick)
+    }
+
+    window.addEventListener('mousemove', onMove, { passive: true })
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      cancelAnimationFrame(raf)
+      if (el) el.style.transform = ''
+    }
   }, [])
 
-  const pts = [
-    [0,64],[28,58],[56,52],[84,46],[112,50],
-    [140,38],[168,32],[196,40],[224,26],[252,30],
-    [280,20],[308,24],[336,14],[364,18],[400,10],
+  /* Words on two visual lines */
+  const line1 = [
+    { text: 'Engineering', delay: 0.10 },
+    { text: 'Digital',     delay: 0.18 },
   ]
-  const linePath = pts.map(([x,y],i) => `${i===0?'M':'L'}${x} ${y}`).join(' ')
-  const fillPath = linePath + ' L400 80 L0 80 Z'
+  const line2 = [
+    { text: 'Products',    delay: 0.26 },
+    { text: 'That',        delay: 0.34 },
+  ]
 
-  return (
-    <div ref={ref} className="w-full" style={{ height: 80 }}>
-      <svg viewBox="0 0 400 80" className="w-full h-full" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="hLineGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="#6366F1" />
-            <stop offset="100%" stopColor="#22D3EE" />
-          </linearGradient>
-          <linearGradient id="hFillGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#22D3EE" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#22D3EE" stopOpacity="0"    />
-          </linearGradient>
-          <clipPath id="hReveal">
-            <rect x="0" y="0" height="80"
-              style={{ width: drawn ? 400 : 0, transition: 'width 1.6s cubic-bezier(.4,0,.2,1) .2s' }} />
-          </clipPath>
-        </defs>
-        <path d={fillPath} fill="url(#hFillGrad)"
-          style={{ opacity: drawn ? 1 : 0, transition: 'opacity 600ms 400ms' }} />
-        <path d={linePath} fill="none" stroke="url(#hLineGrad)"
-          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          clipPath="url(#hReveal)"
-          style={{ filter: drawn ? 'drop-shadow(0 0 6px rgba(34,211,238,.5))' : 'none' }} />
-        {drawn && (
-          <circle cx="400" cy="10" r="4" fill="#22D3EE"
-            style={{ filter: 'drop-shadow(0 0 6px rgba(34,211,238,.9))', animation: 'heroDotPulse 2s ease-in-out infinite' }} />
-        )}
-      </svg>
-    </div>
-  )
-}
-
-/* ─────────────────────────────────────────────
-   HERO VISUAL — right column
-───────────────────────────────────────────── */
-function HeroVisual({ isDark }) {
-  const card  = isDark
-    ? { bg: 'linear-gradient(135deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 100%)',
-        shadow: '0 32px 80px rgba(99,102,241,.18), 0 0 0 1px rgba(255,255,255,.05) inset, 0 0 60px rgba(34,211,238,.06)',
-        border: 'rgba(255,255,255,.10)' }
-    : { bg: '#FFFFFF',
-        shadow: '0 24px 60px rgba(99,102,241,.10), 0 0 0 1px #E2E8F0',
-        border: '#E2E8F0' }
-
-  const topBar = isDark ? 'rgba(255,255,255,.03)' : 'rgba(248,250,252,.9)'
-  const topBarBorder = isDark ? 'rgba(255,255,255,.08)' : '#E2E8F0'
-  const chartBg  = isDark ? 'rgba(255,255,255,.03)' : '#F8FAFC'
-  const chartBorder = isDark ? 'rgba(255,255,255,.06)' : '#E2E8F0'
-  const kpiBg    = isDark ? 'rgba(255,255,255,.04)' : '#F8FAFC'
-  const kpiBorder = isDark ? 'rgba(255,255,255,.08)' : '#E2E8F0'
-  const floatBg  = isDark ? 'rgba(7,16,36,.90)' : 'rgba(255,255,255,.97)'
-  const floatBorder = isDark ? 'rgba(255,255,255,.10)' : '#E2E8F0'
-  const floatShadow1 = isDark ? '0 8px 32px rgba(34,211,238,.12)' : '0 4px 20px rgba(99,102,241,.08)'
-  const floatShadow2 = isDark ? '0 8px 32px rgba(99,102,241,.12)' : '0 4px 20px rgba(99,102,241,.08)'
-  const titleColor  = isDark ? undefined : '#0F172A'
-  const labelColor  = isDark ? undefined : '#64748B'
-  const dayColor    = isDark ? undefined : '#94A3B8'
-
-  return (
-    <div className="relative w-full flex justify-center lg:justify-end">
-
-      {/* Radial spotlight — hidden in light (Canvas aurora also hidden) */}
-      {isDark && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute"
-          style={{
-            width: 900, height: 900,
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'radial-gradient(ellipse at center, rgba(34,211,238,.07) 0%, rgba(34,211,238,.03) 35%, transparent 65%)',
-            filter: 'blur(40px)',
-            zIndex: 0,
-          }}
-        />
-      )}
-
-      {/* Light mode: soft radial glow behind card */}
-      {!isDark && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute"
-          style={{
-            width: 700, height: 700,
-            top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'radial-gradient(ellipse at center, rgba(99,102,241,.05) 0%, transparent 65%)',
-            filter: 'blur(60px)',
-            zIndex: 0,
-          }}
-        />
-      )}
-
-      {/* Horizontal beam — dark only */}
-      {isDark && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute overflow-hidden"
-          style={{ inset: 0, zIndex: 1, borderRadius: 32 }}
-        >
-          <div style={{
-            position: 'absolute', top: '42%', left: 0, width: '100%', height: 2,
-            background: 'linear-gradient(90deg, transparent 0%, rgba(34,211,238,.55) 40%, rgba(99,102,241,.55) 60%, transparent 100%)',
-            filter: 'blur(6px)',
-            animation: 'beamPan 7s cubic-bezier(.4,0,.6,1) infinite',
-            animationDelay: '1.5s',
-          }} />
-        </div>
-      )}
-
-      {/* Dashboard wrapper — float + rotation */}
-      <div
-        className="relative z-10 w-full"
-        style={{ maxWidth: 520, animation: 'dashFloat 12s ease-in-out infinite alternate' }}
-      >
-        {/* Glass shine — dark only */}
-        {isDark && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-[32px] overflow-hidden"
-            style={{ zIndex: 20 }}
-          >
-            <div style={{
-              position: 'absolute', top: 0, left: 0, width: '55%', height: '100%',
-              background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,.07) 50%, transparent 60%)',
-              animation: 'glassShine 8s ease-in-out infinite',
-            }} />
-          </div>
-        )}
-
-        {/* ── Dashboard card ── */}
-        <div
-          className="w-full rounded-[32px] overflow-hidden"
-          style={{
-            height:     420,
-            background: card.bg,
-            boxShadow:  card.shadow,
-            border:     `1px solid ${card.border}`,
-          }}
-        >
-          {/* Top bar */}
-          <div
-            className="flex items-center justify-between px-6 py-4"
-            style={{ background: topBar, borderBottom: `1px solid ${topBarBorder}` }}
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-[#22D3EE] shadow-[0_0_8px_rgba(34,211,238,.8)] animate-pulse" />
-              <span className="text-sm font-[600]" style={{ color: titleColor }}>Analytics</span>
-            </div>
-            <span className="text-xs font-[500]" style={{ color: labelColor ?? undefined }}
-              className2="text-slate-500">Last 7 days</span>
-          </div>
-
-          <div className="flex flex-col h-[calc(100%-57px)] p-5 gap-4">
-            {/* Users */}
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[11px] font-[600] uppercase tracking-widest text-slate-500"
-                  style={labelColor ? { color: labelColor } : {}}>Total Users</p>
-                <p className="mt-1 text-3xl font-[800] tracking-tight"
-                  style={{ color: titleColor }}>34.8k</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-[700] text-green-600 px-2.5 py-1 rounded-full"
-                style={{
-                  background: isDark ? 'rgba(34,197,94,.08)' : 'rgba(34,197,94,.10)',
-                  border: `1px solid ${isDark ? 'rgba(34,197,94,.2)' : 'rgba(34,197,94,.25)'}`,
-                }}>
-                ↑ 12.4%
-              </div>
-            </div>
-
-            {/* Line chart */}
-            <div
-              className="flex-1 px-4 pt-3 pb-2 flex flex-col justify-between rounded-2xl"
-              style={{ background: chartBg, border: `1px solid ${chartBorder}` }}
-            >
-              <HeroLineChart />
-              <div className="flex justify-between mt-1">
-                {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => (
-                  <span key={d} className="text-[9px]"
-                    style={{ color: dayColor ?? '#64748B' }}>{d}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* KPI row */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: 'Revenue', value: '$1.2M', color: '#22D3EE'  },
-                { label: 'Growth',  value: '+24%',  color: '#a78bfa'  },
-                { label: 'NPS',     value: '+48',   color: '#6366F1'  },
-              ].map(k => (
-                <div key={k.label}
-                  className="rounded-2xl px-3 py-3 text-center"
-                  style={{ background: kpiBg, border: `1px solid ${kpiBorder}` }}>
-                  <p className="text-[15px] font-[800]" style={{ color: k.color }}>{k.value}</p>
-                  <p className="text-[10px] mt-0.5"
-                    style={{ color: labelColor ?? '#64748B' }}>{k.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating card 1 — Conversion */}
-      <div
-        className="absolute z-30 rounded-[20px] px-4 py-3"
-        style={{
-          top: '10%', left: 0,
-          background:  floatBg,
-          border:      `1px solid ${floatBorder}`,
-          boxShadow:   floatShadow1,
-          animation:   'dashFloat 12s ease-in-out 0.8s infinite alternate',
-          minWidth:    120,
-        }}
-      >
-        <p className="text-[10px] font-[600] uppercase tracking-widest mb-0.5"
-          style={{ color: labelColor ?? '#64748B' }}>Conversion</p>
-        <p className="text-xl font-[900] bg-gradient-to-r from-[#22D3EE] to-[#6366F1] bg-clip-text text-transparent leading-none">
-          +24%
-        </p>
-      </div>
-
-      {/* Floating card 2 — NPS */}
-      <div
-        className="absolute z-30 rounded-[20px] px-4 py-3"
-        style={{
-          bottom: '14%', right: 0,
-          background:  floatBg,
-          border:      `1px solid ${floatBorder}`,
-          boxShadow:   floatShadow2,
-          animation:   'dashFloat 12s ease-in-out 2s infinite alternate',
-          minWidth:    110,
-        }}
-      >
-        <p className="text-[10px] font-[600] uppercase tracking-widest mb-0.5"
-          style={{ color: labelColor ?? '#64748B' }}>NPS Score</p>
-        <p className="text-xl font-[900] bg-gradient-to-r from-[#6366F1] to-[#22D3EE] bg-clip-text text-transparent leading-none">
-          +48
-        </p>
-      </div>
-    </div>
-  )
-}
-
-/* ─────────────────────────────────────────────
-   ANIMATED HEADING
-───────────────────────────────────────────── */
-function AnimatedHeading({ isDark }) {
-  const words = ['Engineering', 'Digital', 'Products', 'That']
-  const headingColor = isDark ? '#F8FAFC' : '#0F172A'
   return (
     <h1
       id="hero-heading"
-      className="mt-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight"
-      style={{ color: headingColor }}
+      ref={blockRef}
+      style={{
+        margin:        '18px 0 0',
+        fontSize:      'clamp(2.5rem,5.2vw,4.4rem)',
+        fontWeight:    800,
+        lineHeight:    1.06,
+        letterSpacing: '-0.02em',
+        fontFamily:    'Space Grotesk, Inter, system-ui',
+        /* relative so the sweep overlay is clipped to the heading box */
+        position:      'relative',
+        willChange:    'transform',
+      }}
     >
-      {words.map((w, i) => (
+      {/* ── Line 1 ── */}
+      <div>
+        {line1.map(w => (
+          <span
+            key={w.text}
+            className="inline-block text-white"
+            style={{
+              marginRight: '0.24em',
+              opacity:     0,
+              animation:   `wordReveal .65s cubic-bezier(.22,1,.36,1) ${w.delay}s forwards`,
+            }}
+          >
+            {w.text}
+          </span>
+        ))}
+      </div>
+
+      {/* ── Line 2 ── */}
+      <div>
+        {line2.map(w => (
+          <span
+            key={w.text}
+            className="inline-block text-white"
+            style={{
+              marginRight: '0.24em',
+              opacity:     0,
+              animation:   `wordReveal .65s cubic-bezier(.22,1,.36,1) ${w.delay}s forwards`,
+            }}
+          >
+            {w.text}
+          </span>
+        ))}
+
+        {/* ── "Scale" — gradient sweep + ambient glow pulse ── */}
         <span
-          key={w}
           style={{
-            display:        'inline-block',
-            opacity:        0,
-            animation:      'wordReveal 0.7s cubic-bezier(.22,1,.36,1) forwards',
-            animationDelay: `${0.1 + i * 0.12}s`,
+            display:  'inline-block',
+            opacity:  0,
+            animation:'wordReveal .65s cubic-bezier(.22,1,.36,1) .42s forwards',
           }}
         >
-          {w}{' '}
-        </span>
-      ))}
-      <span
-        className="inline-block"
-        style={{ opacity: 0, animation: 'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0.60s forwards' }}
-      >
-        <span
-          style={{
-            backgroundImage:      'linear-gradient(90deg, #22D3EE 0%, #6366F1 30%, #A78BFA 60%, #22D3EE 100%)',
+          <span style={{
+            display:              'inline-block',
+            backgroundImage:      'linear-gradient(90deg,#22D3EE 0%,#6366F1 28%,#A78BFA 55%,#22D3EE 100%)',
             backgroundSize:       '200% auto',
-            backgroundClip:       'text',
             WebkitBackgroundClip: 'text',
-            color:                'transparent',
             WebkitTextFillColor:  'transparent',
-            animation:            'scaleSweep 4s linear 1.2s infinite',
-          }}
-        >
-          Scale
+            backgroundClip:       'text',
+            /* gradient sweep — continuous after initial reveal */
+            animation:            'scaleSweep 4.5s linear 1s infinite, scaleGlow 3.5s ease-in-out 1.5s infinite',
+          }}>
+            Scale
+          </span>
         </span>
+      </div>
+
+      {/* ── Heading light sweep — runs every 7s ── */}
+      <span
+        aria-hidden
+        style={{
+          position:      'absolute',
+          inset:         0,
+          pointerEvents: 'none',
+          overflow:      'hidden',
+          borderRadius:  4,
+          /* clip to the heading bounds */
+          display:       'block',
+        }}
+      >
+        <span style={{
+          position:   'absolute',
+          top:        0,
+          left:       0,
+          width:      '45%',
+          height:     '100%',
+          background: 'linear-gradient(105deg,transparent 30%,rgba(255,255,255,0.055) 50%,transparent 70%)',
+          animation:  'headingSweep 7s ease-in-out 2.5s infinite',
+          display:    'block',
+        }} />
       </span>
     </h1>
   )
 }
 
-/* ─────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────
+   CTA BUTTONS
+─────────────────────────────────────────────────────────── */
+function CTARow() {
+  const [hp, setHp] = useState(false)
+  const [hs, setHs] = useState(false)
+
+  return (
+    <div style={{
+      display:   'flex',
+      flexWrap:  'wrap',
+      gap:       12,
+      marginTop: 28,
+      opacity:   0,
+      animation: 'wordReveal .7s cubic-bezier(.22,1,.36,1) .76s forwards',
+    }}>
+      {/* Primary */}
+      <a
+        href="#contact"
+        aria-label="Start your project"
+        style={{
+          position:       'relative',
+          display:        'inline-flex',
+          alignItems:     'center',
+          gap:            8,
+          padding:        '13px 28px',
+          borderRadius:   14,
+          fontSize:       15,
+          fontWeight:     700,
+          color:          '#fff',
+          textDecoration: 'none',
+          overflow:       'hidden',
+          background:     'linear-gradient(135deg,#6366F1,#22D3EE)',
+          boxShadow:      hp
+            ? '0 0 52px rgba(34,211,238,.38),0 8px 32px rgba(99,102,241,.32)'
+            : '0 4px 24px rgba(99,102,241,.22)',
+          transform:      hp ? 'translateY(-2px)' : 'none',
+          transition:     'box-shadow 260ms, transform 220ms',
+          fontFamily:     'Space Grotesk, Inter, system-ui',
+        }}
+        onMouseEnter={() => setHp(true)}
+        onMouseLeave={() => setHp(false)}
+      >
+        Start Your Project
+        <svg
+          width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+          style={{ animation: hp ? 'arrowNudge .6s ease infinite' : 'none' }}
+        >
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+        {/* shimmer */}
+        <span style={{
+          position:   'absolute',
+          inset:      0,
+          borderRadius: 14,
+          background: 'linear-gradient(105deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%)',
+          animation:  hp ? 'badgeShimmer 1.1s ease-in-out' : 'none',
+          pointerEvents: 'none',
+        }} />
+      </a>
+
+      {/* Secondary */}
+      <a
+        href="#work"
+        aria-label="View case studies"
+        style={{
+          display:        'inline-flex',
+          alignItems:     'center',
+          gap:            8,
+          padding:        '13px 24px',
+          borderRadius:   14,
+          fontSize:       15,
+          fontWeight:     500,
+          color:          hs ? '#fff' : '#D1D9E8',
+          textDecoration: 'none',
+          background:     hs ? 'rgba(255,255,255,.07)' : 'rgba(255,255,255,.04)',
+          border:         `1px solid ${hs ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.10)'}`,
+          transform:      hs ? 'translateY(-2px)' : 'none',
+          transition:     'all 220ms',
+          fontFamily:     'Space Grotesk, Inter, system-ui',
+        }}
+        onMouseEnter={() => setHs(true)}
+        onMouseLeave={() => setHs(false)}
+      >
+        View Case Studies
+        <svg
+          width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </a>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────
+   METRICS STRIP
+─────────────────────────────────────────────────────────── */
+function MetricsStrip({ trigger }) {
+  return (
+    <div style={{ marginTop: 28 }}>
+      {/* Divider */}
+      <div style={{
+        height:     '1px',
+        background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent)',
+        marginBottom: 20,
+        opacity:    0,
+        animation: 'fadeUp .5s ease .92s forwards',
+      }} />
+
+      <div style={{
+        display:             'grid',
+        gridTemplateColumns: 'repeat(4,1fr)',
+        gap:                 10,
+      }}>
+        {METRICS.map((m, i) => (
+          <MetricCard
+            key={m.label}
+            {...m}
+            delay={0.96 + i * 0.07}
+            trigger={trigger}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────
    HERO
-───────────────────────────────────────────── */
+─────────────────────────────────────────────────────────── */
 export default function Hero() {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
 
-  const sectionBg = isDark
-    ? '#020617'
-    : 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #EEF2FF 100%)'
+  /* Metrics trigger immediately on mount (always above fold) */
+  const [metricsTrigger, setMetricsTrigger] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setMetricsTrigger(true), 900)
+    return () => clearTimeout(t)
+  }, [])
 
-  const descColor  = isDark ? '#D1D9E8' : '#334155'
-  const badgeBg    = isDark ? 'rgba(255,255,255,.06)' : 'rgba(99,102,241,.08)'
-  const badgeBorder = isDark ? 'rgba(255,255,255,.10)' : 'rgba(99,102,241,.2)'
-  const badgeColor = isDark ? '#D1D9E8' : '#4338CA'
-  const secBtnBg   = isDark ? 'rgba(255,255,255,.04)' : 'rgba(255,255,255,.8)'
-  const secBtnBorder = isDark ? 'rgba(255,255,255,.10)' : '#CBD5E1'
-  const secBtnColor  = isDark ? '#D1D9E8' : '#0F172A'
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  )
+  useEffect(() => {
+    const fn = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', fn, { passive: true })
+    return () => window.removeEventListener('resize', fn)
+  }, [])
 
   return (
     <section
       aria-labelledby="hero-heading"
-      className="relative overflow-hidden max-w-[1440px] mx-auto px-6 sm:px-8 py-16 md:py-24 lg:py-28"
-      style={isDark
-        ? { backgroundColor: sectionBg }
-        : { background: sectionBg }
-      }
+      style={{
+        position:   'relative',
+        overflow:   'hidden',
+        background: isDark
+          ? 'linear-gradient(165deg,#020617 0%,#020e24 45%,#030b1f 100%)'
+          : 'linear-gradient(165deg,#f8fafc 0%,#eef2ff 100%)',
+        paddingTop:    'clamp(16px,3.5vw,48px)',
+        paddingBottom: 'clamp(40px,6vw,72px)',
+      }}
     >
-      <style>{KEYFRAMES}</style>
+      <style>{KF}</style>
 
-      {/* Aurora — dark mode only (canvas renders its own dark bg) */}
+      {/* ── Aurora canvas (dark only, lazy) ── */}
       {isDark && (
         <Suspense fallback={null}>
           <AuroraBackground />
         </Suspense>
       )}
 
-      {/* Edge glows */}
-      <div className="pointer-events-none absolute inset-0" style={{ zIndex: 1 }}>
-        <div className="absolute rounded-full"
-          style={{
-            top: '-15%', left: '-12%', width: 700, height: 700,
-            background: isDark
-              ? 'radial-gradient(circle, rgba(34,211,238,.04) 0%, transparent 60%)'
-              : 'radial-gradient(circle, rgba(99,102,241,.06) 0%, transparent 60%)',
-            filter: 'blur(200px)',
+      {/* ── Light rays ── */}
+      {isDark && (
+        <div aria-hidden style={{ position:'absolute',inset:0,zIndex:1,overflow:'hidden',pointerEvents:'none' }}>
+          <div style={{
+            position:   'absolute',
+            top:        '-5%',
+            left:       '-30%',
+            width:      '65%',
+            height:     '120%',
+            background: 'linear-gradient(105deg,transparent 38%,rgba(99,102,241,0.045) 50%,transparent 62%)',
+            animation:  'rayDrift 22s ease-in-out 1s infinite',
           }} />
-        <div className="absolute rounded-full"
-          style={{
-            top: '0%', right: '-18%', width: 800, height: 800,
-            background: isDark
-              ? 'radial-gradient(circle, rgba(99,102,241,.05) 0%, transparent 60%)'
-              : 'radial-gradient(circle, rgba(34,211,238,.05) 0%, transparent 60%)',
-            filter: 'blur(220px)',
+          <div style={{
+            position:   'absolute',
+            top:        '20%',
+            right:      '-20%',
+            width:      '50%',
+            height:     '80%',
+            background: 'linear-gradient(260deg,transparent 40%,rgba(34,211,238,0.03) 50%,transparent 60%)',
+            animation:  'rayDrift 28s ease-in-out 8s infinite reverse',
           }} />
-      </div>
-
-      {/* Content grid */}
-      <div
-        className="relative grid grid-cols-1 lg:grid-cols-[55fr_45fr] gap-12 lg:gap-16 items-center"
-        style={{ zIndex: 10 }}
-      >
-        {/* LEFT */}
-        <div className="max-w-xl">
-          {/* Badge */}
-          <span
-            className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
-            style={{
-              background:  badgeBg,
-              border:      `1px solid ${badgeBorder}`,
-              color:       badgeColor,
-              opacity:     0,
-              animation:   'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0s forwards',
-            }}
-          >
-            Digital Transformation Studio
-          </span>
-
-          <AnimatedHeading isDark={isDark} />
-
-          {/* Description */}
-          <p
-            className="mt-4 text-base md:text-lg"
-            style={{
-              color:     descColor,
-              opacity:   0,
-              animation: 'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0.72s forwards',
-            }}
-          >
-            We help ambitious businesses design, develop and grow modern digital experiences.
-          </p>
-
-          {/* CTAs */}
-          <div
-            className="mt-8 flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3"
-            style={{ opacity: 0, animation: 'wordReveal 0.7s cubic-bezier(.22,1,.36,1) 0.88s forwards' }}
-          >
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-xl text-base font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-lg hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(99,102,241,.35)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#22D3EE]/40"
-              aria-label="Start your project"
-            >
-              Start Your Project
-            </a>
-            <a
-              href="#work"
-              className="inline-flex items-center justify-center w-full sm:w-auto px-6 py-3 rounded-xl text-base font-medium hover:-translate-y-0.5 transition-all duration-200 focus:outline-none"
-              style={{
-                background:  secBtnBg,
-                border:      `1px solid ${secBtnBorder}`,
-                color:       secBtnColor,
-              }}
-              aria-label="View case studies"
-            >
-              View Case Studies
-            </a>
-          </div>
         </div>
+      )}
 
-        {/* RIGHT */}
-        <HeroVisual isDark={isDark} />
+      {/* ── Ambient glows ── */}
+      <div aria-hidden style={{ position:'absolute',inset:0,zIndex:1,pointerEvents:'none' }}>
+        <div style={{
+          position:'absolute', top:'-22%', left:'-8%',
+          width:680, height:680, borderRadius:'50%',
+          background: isDark
+            ? 'radial-gradient(circle,rgba(34,211,238,.055) 0%,transparent 65%)'
+            : 'radial-gradient(circle,rgba(99,102,241,.06) 0%,transparent 65%)',
+          filter:'blur(170px)',
+        }} />
+        <div style={{
+          position:'absolute', top:'8%', right:'-12%',
+          width:720, height:720, borderRadius:'50%',
+          background: isDark
+            ? 'radial-gradient(circle,rgba(99,102,241,.065) 0%,transparent 65%)'
+            : 'radial-gradient(circle,rgba(34,211,238,.04) 0%,transparent 65%)',
+          filter:'blur(190px)',
+        }} />
+        <div style={{
+          position:'absolute', bottom:'-8%', left:'35%',
+          width:560, height:380, borderRadius:'50%',
+          background:'radial-gradient(circle,rgba(167,139,250,.04) 0%,transparent 65%)',
+          filter:'blur(160px)',
+        }} />
       </div>
+
+      {/* ── Main content ── */}
+      <div style={{
+        position: 'relative',
+        zIndex:   10,
+        maxWidth: 1440,
+        margin:   '0 auto',
+        padding:  '0 clamp(20px,4vw,48px)',
+      }}>
+        <div style={{
+          display:             'grid',
+          /* left text narrower, right viz larger — creates visual tension */
+          gridTemplateColumns: isMobile ? '1fr' : '46fr 54fr',
+          gap:                 isMobile ? 48 : 'clamp(24px,4vw,56px)',
+          alignItems:          'center',
+        }}>
+
+          {/* ════════════════ LEFT ════════════════ */}
+          <div style={{ display:'flex', flexDirection:'column' }}>
+
+            {/* Badge */}
+            <div style={{
+              position:   'relative',
+              display:    'inline-flex',
+              alignItems: 'center',
+              gap:        8,
+              alignSelf:  'flex-start',
+              overflow:   'hidden',
+              borderRadius: 999,
+              padding:    '7px 16px',
+              background: isDark ? 'rgba(255,255,255,.05)' : 'rgba(99,102,241,.08)',
+              border:     `1px solid ${isDark ? 'rgba(255,255,255,.10)' : 'rgba(99,102,241,.20)'}`,
+              opacity:    0,
+              animation:  'wordReveal .65s cubic-bezier(.22,1,.36,1) 0s forwards',
+            }}>
+              {/* Pulse dot */}
+              <span style={{ position:'relative', display:'flex', width:8, height:8, flexShrink:0 }}>
+                <span style={{
+                  position:'absolute', inset:0, borderRadius:'50%',
+                  background:'#22D3EE', opacity:.65,
+                  animation:'ping 1.4s cubic-bezier(0,0,.2,1) infinite',
+                }} />
+                <span style={{ position:'relative', width:8, height:8, borderRadius:'50%', background:'#22D3EE' }} />
+              </span>
+              <span style={{
+                fontSize:    13,
+                fontWeight:  600,
+                letterSpacing: '0.02em',
+                color:       isDark ? '#D1D9E8' : '#4338CA',
+                fontFamily:  'Space Grotesk, Inter, system-ui',
+                whiteSpace:  'nowrap',
+              }}>
+                Digital Transformation Studio
+              </span>
+              {/* shimmer */}
+              <span style={{
+                position:'absolute', inset:0, borderRadius:999, pointerEvents:'none',
+                background:'linear-gradient(105deg,transparent 38%,rgba(255,255,255,.10) 50%,transparent 62%)',
+                animation: 'badgeShimmer 7s ease-in-out 2s infinite',
+              }} />
+            </div>
+
+            {/* Heading */}
+            <Heading />
+
+            {/* Description */}
+            <p style={{
+              marginTop:  20,
+              fontSize:   'clamp(15px,1.6vw,17px)',
+              lineHeight: 1.75,
+              color:      isDark ? 'rgba(209,217,232,.80)' : '#475569',
+              maxWidth:   '42ch',
+              opacity:    0,
+              animation:  'wordReveal .7s cubic-bezier(.22,1,.36,1) .62s forwards',
+              fontFamily: 'Space Grotesk, Inter, system-ui',
+            }}>
+              We help ambitious businesses design, develop and grow
+              modern digital experiences — from first concept to production at scale.
+            </p>
+
+            {/* CTA */}
+            <CTARow />
+
+            {/* Metrics — directly below CTA, always visible on first load */}
+            <MetricsStrip trigger={metricsTrigger} />
+
+          </div>
+
+          {/* ════════════════ RIGHT — Ecosystem ════════════════ */}
+          <div style={{
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: isMobile ? 'center' : 'flex-end',
+            opacity:        0,
+            animation:      'wordReveal 1s cubic-bezier(.22,1,.36,1) .25s forwards',
+          }}>
+            <div style={{
+              position:  'relative',
+              width:      '100%',
+              maxWidth:   isMobile ? 340 : '100%',
+              animation: 'heroFloat 10s ease-in-out infinite',
+            }}>
+              {/* Extra radial glow behind the ecosystem */}
+              <div aria-hidden style={{
+                position:  'absolute',
+                inset:     '-12%',
+                borderRadius: '50%',
+                background:'radial-gradient(ellipse at 50% 50%,rgba(34,211,238,.07) 0%,rgba(99,102,241,.05) 40%,transparent 68%)',
+                filter:    'blur(50px)',
+                zIndex:    0,
+                pointerEvents: 'none',
+              }} />
+              <div style={{ position:'relative', zIndex:1 }}>
+                <EcosystemVisualization isMobile={isMobile} />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Ping keyframe (badge dot) */}
+      <style>{`
+        @keyframes ping {
+          75%,100% { transform:scale(2); opacity:0; }
+        }
+      `}</style>
+
     </section>
   )
 }
