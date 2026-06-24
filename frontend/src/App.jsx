@@ -6,6 +6,8 @@ import About from './pages/About'
 import Services from './pages/Services'
 import Work from './pages/Work'
 import CaseStudy from './pages/CaseStudy'
+import Portfolio from './pages/Portfolio'
+import LearnMore from './pages/LearnMore'
 import Process from './pages/Process'
 import Industries from './pages/Industries'
 import Contact from './pages/Contact'
@@ -49,6 +51,8 @@ function AppInner() {
         <Route path="/services"   element={<Services />}   />
         <Route path="/work"       element={<Work />}       />
         <Route path="/work/:slug" element={<CaseStudy />} />
+        <Route path="/portfolio"  element={<Portfolio />}  />
+        <Route path="/learn-more" element={<LearnMore />}  />
         <Route path="/process"    element={<Process />}    />
         <Route path="/industries" element={<Industries />} />
         <Route path="/contact"    element={<Contact />}    />

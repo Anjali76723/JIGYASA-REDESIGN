@@ -16,12 +16,12 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
 /* ── tuneable constants ── */
-const N_POINTS       = 280    // particle count
-const SPHERE_R       = 1.6    // sphere radius
-const CONNECT_DIST   = 0.72   // max edge length to draw a connection
-const N_PULSES       = 14     // travelling energy dots
-const PULSE_SPEED    = 0.009  // progress per frame
-const ROTATION_SPEED = 0.0015 // rad/frame base
+const N_POINTS       = 175    // ↓ from 280 — less dense, more airy
+const SPHERE_R       = 1.35   // ↓ from 1.6  — ~16% smaller sphere
+const CONNECT_DIST   = 0.60   // ↓ from 0.72 — fewer connections (~35% reduction)
+const N_PULSES       = 8      // ↓ from 14   — cleaner energy pulses
+const PULSE_SPEED    = 0.007  // ↓ from 0.009 — slightly slower pulses
+const ROTATION_SPEED = 0.0010 // ↓ from 0.0015 — ~33% slower, more premium feel
 
 /* ── Fibonacci sphere: evenly-spaced points on a unit sphere ── */
 function fibonacciSphere(n, r) {
@@ -167,10 +167,10 @@ function SphereScene({ mouseRef }) {
           <bufferAttribute attach="attributes-color"    args={[colors, 3]}    />
         </bufferGeometry>
         <pointsMaterial
-          size={0.028}
+          size={0.038}
           vertexColors
           transparent
-          opacity={0.85}
+          opacity={0.92}
           sizeAttenuation
           depthWrite={false}
         />
@@ -184,7 +184,7 @@ function SphereScene({ mouseRef }) {
         <lineBasicMaterial
           color="#6366F1"
           transparent
-          opacity={0.12}
+          opacity={0.18}
           depthWrite={false}
         />
       </lineSegments>
@@ -192,10 +192,10 @@ function SphereScene({ mouseRef }) {
       {/* ── Energy pulses ── */}
       <points ref={pulseRef} geometry={pulseGeo}>
         <pointsMaterial
-          size={0.055}
+          size={0.07}
           color="#22D3EE"
           transparent
-          opacity={0.95}
+          opacity={0.98}
           sizeAttenuation
           depthWrite={false}
         />
@@ -214,7 +214,7 @@ export default function ContactSphere() {
     <div style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }} aria-hidden>
       <Canvas
         dpr={[1, 1.5]}
-        camera={{ position: [0, 0, 4.2], fov: 52 }}
+        camera={{ position: [0, 0, 4.8], fov: 48 }}
         gl={{
           antialias: false,
           alpha: true,
@@ -224,7 +224,9 @@ export default function ContactSphere() {
         style={{ background: 'transparent' }}
         frameloop="always"
       >
-        <ambientLight intensity={0.15} />
+        <ambientLight intensity={0.12} />
+        {/* Cyan core point light for the centre glow effect */}
+        <pointLight position={[0, 0, 0]} intensity={0.8} color="#22D3EE" distance={3} decay={2} />
         <SphereScene mouseRef={mouseRef} />
       </Canvas>
     </div>

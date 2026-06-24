@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, Suspense, lazy } from 'react'
+import { Link } from 'react-router-dom'
 import { useTheme } from '../../context/ThemeContext'
 import EcosystemVisualization from './EcosystemVisualization'
 
@@ -325,8 +326,8 @@ function CTARow() {
       animation: 'wordReveal .7s cubic-bezier(.22,1,.36,1) .76s forwards',
     }}>
       {/* Primary */}
-      <a
-        href="#contact"
+      <Link
+        to="/contact"
         aria-label="Start your project"
         style={{
           position:       'relative',
@@ -359,20 +360,17 @@ function CTARow() {
         >
           <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
-        {/* shimmer */}
         <span style={{
-          position:   'absolute',
-          inset:      0,
-          borderRadius: 14,
+          position:   'absolute', inset: 0, borderRadius: 14,
           background: 'linear-gradient(105deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%)',
           animation:  hp ? 'badgeShimmer 1.1s ease-in-out' : 'none',
           pointerEvents: 'none',
         }} />
-      </a>
+      </Link>
 
       {/* Secondary */}
-      <a
-        href="#work"
+      <Link
+        to="/portfolio"
         aria-label="View case studies"
         style={{
           display:        'inline-flex',
@@ -394,13 +392,11 @@ function CTARow() {
         onMouseLeave={() => setHs(false)}
       >
         View Case Studies
-        <svg
-          width="14" height="14" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-        >
+        <svg width="14" height="14" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 18l6-6-6-6" />
         </svg>
-      </a>
+      </Link>
     </div>
   )
 }

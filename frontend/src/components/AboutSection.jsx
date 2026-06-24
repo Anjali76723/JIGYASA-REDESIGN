@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import ImpactMatrix from './ImpactMatrix'
 
@@ -167,18 +168,18 @@ export default function AboutSection() {
 
               {/* CTA buttons */}
               <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-2">
-                <a
-                  href="#contact"
+                <Link
+                  to="/learn-more"
                   className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(34,211,238,0.2)]"
                 >
                   Learn More
-                </a>
-                <a
-                  href="#process"
+                </Link>
+                <Link
+                  to="/process"
                   className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-white/5 border border-white/10 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:bg-white/10"
                 >
                   Our Process
-                </a>
+                </Link>
               </motion.div>
             </motion.div>
 
