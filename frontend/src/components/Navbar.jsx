@@ -8,7 +8,6 @@ import { useContactModal } from '../App'
 const navLinks = [
   { label: 'Services',   href: '/services'   },
   { label: 'Work',       href: '/work'       },
-  { label: 'Process',    href: '/process'    },
   { label: 'Industries', href: '/industries' },
   { label: 'About',      href: '/about'      },
   { label: 'Contact',    href: '/contact'    },
@@ -22,22 +21,18 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
-  /* scroll state */
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 12)
     window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  /* lock scroll when drawer open */
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  const handleClick = () => {
-    setOpen(false)
-  }
+  const handleClick = () => setOpen(false)
 
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'

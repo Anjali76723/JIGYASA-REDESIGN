@@ -174,12 +174,16 @@ export default function AboutSection() {
                 >
                   Learn More
                 </Link>
-                <Link
-                  to="/process"
+                <a
+                  href="#process"
+                  onClick={e => {
+                    e.preventDefault()
+                    document.getElementById('process')?.scrollIntoView({ behavior: 'smooth' })
+                  }}
                   className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-white/5 border border-white/10 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:bg-white/10"
                 >
                   Our Process
-                </Link>
+                </a>
               </motion.div>
             </motion.div>
 

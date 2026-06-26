@@ -1,6 +1,8 @@
 import Navbar from '../components/Navbar'
 import AboutSection from '../components/AboutSection'
 import WhyChooseUs from '../components/WhyChooseUs'
+import ProcessSection from '../components/ProcessSection'
+import EngineeringDNA from '../components/EngineeringDNA'
 import CallToAction from '../components/CallToAction'
 import Footer from '../components/Footer'
 
@@ -10,6 +12,8 @@ export default function About() {
       <Navbar />
       <AboutSection />
       <WhyChooseUs />
+      <ProcessSection />
+      <EngineeringDNA />
       <CallToAction />
       <Footer />
     </div>
