@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom'
 const quickLinks = [
   { label: 'Home',       href: '/'          },
   { label: 'Services',   href: '/services'  },
-  { label: 'Work',       href: '/work'      },
   { label: 'Industries', href: '/industries'},
   { label: 'About',      href: '/about'     },
   { label: 'Contact',    href: '/contact'   },

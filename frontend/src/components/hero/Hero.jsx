@@ -314,7 +314,6 @@ function Heading() {
 ─────────────────────────────────────────────────────────── */
 function CTARow() {
   const [hp, setHp] = useState(false)
-  const [hs, setHs] = useState(false)
 
   return (
     <div style={{
@@ -366,36 +365,6 @@ function CTARow() {
           animation:  hp ? 'badgeShimmer 1.1s ease-in-out' : 'none',
           pointerEvents: 'none',
         }} />
-      </Link>
-
-      {/* Secondary */}
-      <Link
-        to="/portfolio"
-        aria-label="View case studies"
-        style={{
-          display:        'inline-flex',
-          alignItems:     'center',
-          gap:            8,
-          padding:        '13px 24px',
-          borderRadius:   14,
-          fontSize:       15,
-          fontWeight:     500,
-          color:          hs ? '#fff' : '#D1D9E8',
-          textDecoration: 'none',
-          background:     hs ? 'rgba(255,255,255,.07)' : 'rgba(255,255,255,.04)',
-          border:         `1px solid ${hs ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.10)'}`,
-          transform:      hs ? 'translateY(-2px)' : 'none',
-          transition:     'all 220ms',
-          fontFamily:     'Space Grotesk, Inter, system-ui',
-        }}
-        onMouseEnter={() => setHs(true)}
-        onMouseLeave={() => setHs(false)}
-      >
-        View Case Studies
-        <svg width="14" height="14" viewBox="0 0 24 24"
-          fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 18l6-6-6-6" />
-        </svg>
       </Link>
     </div>
   )
@@ -459,6 +428,7 @@ export default function Hero() {
 
   return (
     <section
+      id="hero"
       aria-labelledby="hero-heading"
       style={{
         position:   'relative',

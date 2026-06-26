@@ -6,8 +6,8 @@ import { useTheme } from '../context/ThemeContext'
 import { useContactModal } from '../App'
 
 const navLinks = [
+  { label: 'Home',       href: '/'           },
   { label: 'Services',   href: '/services'   },
-  { label: 'Work',       href: '/work'       },
   { label: 'Industries', href: '/industries' },
   { label: 'About',      href: '/about'      },
   { label: 'Contact',    href: '/contact'    },
@@ -32,7 +32,12 @@ export default function Navbar() {
     return () => { document.body.style.overflow = '' }
   }, [open])
 
-  const handleClick = () => setOpen(false)
+  const handleClick = (href) => {
+    if (href === '/' && location.pathname === '/') {
+      document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' })
+    }
+    setOpen(false)
+  }
 
   const { theme, toggleTheme } = useTheme()
   const isDark = theme === 'dark'
@@ -84,7 +89,7 @@ export default function Navbar() {
                 <li key={l.href}>
                   <Link
                     to={l.href}
-                    onClick={handleClick}
+                    onClick={() => handleClick(l.href)}
                     aria-current={active ? 'page' : undefined}
                     className={`
                       relative inline-flex items-center
@@ -141,7 +146,7 @@ export default function Navbar() {
             {/* Start Project — gradient */}
             <Link
               to="/contact"
-              onClick={handleClick}
+              onClick={() => handleClick('/contact')}
               className="
                 px-6 py-[10px] rounded-[999px]
                 text-[14px] font-[600] text-white
@@ -357,7 +362,7 @@ function MobileDrawer({ open, onClose, navLinks, activePath, onNavClick, isDark,
                 >
                   <Link
                     to={l.href}
-                    onClick={onNavClick}
+                    onClick={() => onNavClick(l.href)}
                     className="
                       flex items-center justify-between
                       py-5 border-b border-white/[.04]
