@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import SoftwareArchitectureMap from './SoftwareArchitectureMap'
 
@@ -34,6 +34,8 @@ const pills = ['Strategy', 'Design', 'Engineering']
 export default function AboutSection() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
+  const location = useLocation()
+  const isLearnMore = location.pathname === '/learn-more'
 
   return (
     <section
@@ -105,12 +107,14 @@ export default function AboutSection() {
 
               {/* CTA buttons */}
               <motion.div variants={fadeUp} className="flex flex-wrap gap-4 mt-2">
-                <Link
-                  to="/learn-more"
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(34,211,238,0.2)]"
-                >
-                  Learn More
-                </Link>
+                {!isLearnMore && (
+                  <Link
+                    to="/learn-more"
+                    className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-[#6366F1] to-[#22D3EE] shadow-lg transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(34,211,238,0.2)]"
+                  >
+                    Learn More
+                  </Link>
+                )}
                 <a
                   href="#process"
                   onClick={e => {

@@ -1,72 +1,36 @@
 import { useRef } from 'react'
-import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
+import { Rocket, Shield, Users, Layers } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import CallToAction from '../components/CallToAction'
 import Footer from '../components/Footer'
 
 const FONT = 'Space Grotesk, Inter, system-ui'
-const BG   = '#020617'
+const BG = '#070B17'
 
 const KF = `
   @keyframes lmGradSweep{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-  @keyframes lmParticle{0%,100%{opacity:.22;transform:scale(1)}50%{opacity:.5;transform:scale(1.2)}}
+  @keyframes lmParticle{0%,100%{opacity:.15;transform:translateY(0) scale(1)}50%{opacity:.45;transform:translateY(-20px) scale(1.15)}}
+  @keyframes lmParticleAlt{0%,100%{opacity:.15;transform:translate(0,0) scale(1)}50%{opacity:.45;transform:translate(15px, 15px) scale(1.1)}}
+  @keyframes lmBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+  @keyframes lmGlowSweep{0%{left:-150%}100%{left:150%}}
+  @keyframes lmFloatIcon{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+  @keyframes lmFloatIconAlt{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(-3deg)}}
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
+  }
 `
 
-const PARTICLES = Array.from({length:16},(_, i)=>({
-  id:i, left:`${5+(i*5.7)%88}%`, top:`${5+(i*7.3)%86}%`,
-  size:1.3+(i%3)*.9, dur:`${4+(i%5)}s`, delay:`${(i*.38)%3.5}s`,
-  color:['#22D3EE','#6366F1','#A78BFA'][i%3],
+const PARTICLES = Array.from({length:18},(_, i)=>({
+  id:i, left:`${5+(i*5.3)%88}%`, top:`${5+(i*7.1)%86}%`,
+  size:1.2+(i%3)*1.1, dur:`${5+(i%4)*1.5}s`, delay:`${(i*.4)%4}s`,
+  anim: i % 2 === 0 ? 'lmParticle' : 'lmParticleAlt',
+  color:['#35D0FF','#6C63FF','#A78BFA'][i%3],
 }))
-
-function SectionLabel({ children }) {
-  return <p style={{fontSize:11,fontWeight:700,letterSpacing:'0.35em',
-    textTransform:'uppercase',color:'#22D3EE',marginBottom:14,fontFamily:FONT}}>{children}</p>
-}
-
-function fadeUpProps(delay=0) {
-  return { initial:{opacity:0,y:28}, whileInView:{opacity:1,y:0},
-    viewport:{once:true,margin:'-50px'}, transition:{duration:.6,delay,ease:[.22,1,.36,1]} }
-}
-
-/* ── Milestones ── */
-const MILESTONES = [
-  { year:'2015', event:'Founded in New Delhi with a mission to build software that changes businesses.' },
-  { year:'2017', event:'First enterprise client — delivered a manufacturing analytics system still in production today.' },
-  { year:'2019', event:'Expanded into healthcare and fintech verticals. Team grew to 20 specialists.' },
-  { year:'2021', event:'Reached 200+ projects milestone. Launched dedicated AI/ML practice.' },
-  { year:'2023', event:'500+ projects delivered across 15 industries and 3 continents.' },
-  { year:'2024', event:'Team of 50+ engineers, designers, and strategists. New office expansion.' },
-]
-
-/* ── Values ── */
-const VALUES = [
-  { title:'Craft over quantity', desc:'We take fewer projects to do each one exceptionally well.',
-    accent:'#22D3EE', icon:'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' },
-  { title:'Outcomes, not output', desc:'Success is measured by the growth our clients achieve — not lines of code.',
-    accent:'#6366F1', icon:'M3 17l4-8 4 4 4-6 4 10' },
-  { title:'Transparent by default', desc:'Clear communication at every stage. No surprises, no excuses.',
-    accent:'#A78BFA', icon:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
-  { title:'Long-term thinking', desc:'We build partnerships, not transactions. Most clients have been with us for years.',
-    accent:'#34D399', icon:'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75' },
-]
-
-/* ── Expertise areas ── */
-const EXPERTISE = [
-  { label:'Product Engineering',  pct:98, color:'#22D3EE' },
-  { label:'UI/UX Design',         pct:94, color:'#6366F1' },
-  { label:'Cloud Architecture',   pct:90, color:'#A78BFA' },
-  { label:'AI & Data Systems',    pct:85, color:'#F472B6' },
-  { label:'DevOps & Infra',       pct:88, color:'#34D399' },
-]
-
-/* ── Stats ── */
-const STATS = [
-  { value:'500+', label:'Projects Delivered' },
-  { value:'98%',  label:'Client Satisfaction' },
-  { value:'50+',  label:'Specialists' },
-  { value:'10+',  label:'Years Experience' },
-]
 
 /* ── Hero ── */
 function LMHero() {
@@ -74,239 +38,397 @@ function LMHero() {
   const inView = useInView(ref,{once:true})
   return (
     <section ref={ref} style={{position:'relative',overflow:'hidden',
-      backgroundColor:BG, paddingTop:72, paddingBottom:80}}>
+      backgroundColor:BG, paddingTop:140, paddingBottom:100}}>
       {PARTICLES.map(p=>(
         <div key={p.id} aria-hidden style={{position:'absolute',left:p.left,top:p.top,
           width:p.size,height:p.size,borderRadius:'50%',background:p.color,
-          animation:`lmParticle ${p.dur} ${p.delay} ease-in-out infinite`,pointerEvents:'none'}}/>
+          animation:`${p.anim} ${p.dur} ${p.delay} ease-in-out infinite`,pointerEvents:'none'}}/>
       ))}
       <div style={{pointerEvents:'none',position:'absolute',left:'-8%',top:'-15%',
         width:560,height:560,borderRadius:'50%',
-        background:'radial-gradient(circle,rgba(34,211,238,.055) 0%,transparent 65%)',filter:'blur(120px)'}}/>
+        background:'radial-gradient(circle,rgba(53,208,255,.055) 0%,transparent 65%)',filter:'blur(120px)'}}/>
       <div style={{pointerEvents:'none',position:'absolute',right:'-5%',bottom:0,
         width:500,height:500,borderRadius:'50%',
-        background:'radial-gradient(circle,rgba(99,102,241,.055) 0%,transparent 65%)',filter:'blur(110px)'}}/>
+        background:'radial-gradient(circle,rgba(108,99,255,.055) 0%,transparent 65%)',filter:'blur(110px)'}}/>
+      
       <div style={{position:'relative',zIndex:10,maxWidth:800,margin:'0 auto',
         padding:'0 24px',textAlign:'center'}}>
-        <motion.p initial={{opacity:0,y:14}} animate={inView?{opacity:1,y:0}:{}}
-          transition={{duration:.5}} style={{fontSize:11,fontWeight:700,
-            letterSpacing:'0.35em',textTransform:'uppercase',color:'#22D3EE',
-            marginBottom:16,fontFamily:FONT}}>
+        <motion.p 
+          initial={{opacity:0,y:14}} 
+          animate={inView?{opacity:1,y:0}:{}}
+          transition={{duration:.5, ease:[0.22, 1, 0.36, 1]}} 
+          style={{fontSize:11,fontWeight:700,
+            letterSpacing:'0.35em',textTransform:'uppercase',color:'#35D0FF',
+            marginBottom:16,fontFamily:FONT}}
+        >
           About Jigyasa Technologies
         </motion.p>
-        <motion.h1 initial={{opacity:0,y:28}} animate={inView?{opacity:1,y:0}:{}}
-          transition={{duration:.65,delay:.1}}
+        <motion.h1 
+          initial={{opacity:0,y:28}} 
+          animate={inView?{opacity:1,y:0}:{}}
+          transition={{duration:.7,delay:.1, ease:[0.22, 1, 0.36, 1]}}
           style={{fontSize:'clamp(2.4rem,5vw,4rem)',fontWeight:800,color:'#fff',
-            lineHeight:1.08,letterSpacing:'-0.02em',fontFamily:FONT,marginBottom:20}}>
+            lineHeight:1.08,letterSpacing:'-0.02em',fontFamily:FONT,marginBottom:20}}
+        >
           We build software that{' '}
-          <span style={{backgroundImage:'linear-gradient(90deg,#22D3EE 0%,#6366F1 38%,#A78BFA 65%,#22D3EE 100%)',
+          <span style={{backgroundImage:'linear-gradient(90deg,#35D0FF 0%,#6C63FF 38%,#A78BFA 65%,#35D0FF 100%)',
             backgroundSize:'200% auto',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',
             backgroundClip:'text',animation:'lmGradSweep 5s linear infinite'}}>
             changes businesses
           </span>
         </motion.h1>
-        <motion.p initial={{opacity:0,y:18}} animate={inView?{opacity:1,y:0}:{}}
-          transition={{duration:.6,delay:.2}}
+        <motion.p 
+          initial={{opacity:0,y:18}} 
+          animate={inView?{opacity:1,y:0}:{}}
+          transition={{duration:.7,delay:.2, ease:[0.22, 1, 0.36, 1]}}
           style={{fontSize:17,color:'rgba(209,217,232,0.75)',lineHeight:1.75,
-            fontFamily:FONT,maxWidth:'52ch',margin:'0 auto'}}>
+            fontFamily:FONT,maxWidth:'52ch',margin:'0 auto'}}
+        >
           Since 2015, Jigyasa Technologies has partnered with startups and enterprises
           to design, engineer, and grow digital products that drive measurable outcomes.
         </motion.p>
-      </div>
-    </section>
-  )
-}
 
-/* ── Timeline ── */
-function Timeline() {
-  const ref = useRef(null)
-  const inView = useInView(ref,{once:true,margin:'-60px'})
-  return (
-    <section ref={ref} style={{backgroundColor:BG,padding:'72px 0'}}>
-      <div style={{maxWidth:800,margin:'0 auto',padding:'0 24px'}}>
-        <motion.div {...fadeUpProps()}>
-          <SectionLabel>Our Story</SectionLabel>
-          <h2 style={{fontSize:'clamp(1.7rem,3vw,2.5rem)',fontWeight:800,color:'#fff',
-            letterSpacing:'-0.01em',fontFamily:FONT,marginBottom:48,lineHeight:1.2}}>
-            A decade of building
-          </h2>
-        </motion.div>
-        <div style={{position:'relative'}}>
-          <div style={{position:'absolute',left:16,top:8,bottom:8,width:2,
-            background:'linear-gradient(to bottom,#22D3EE,#6366F1,#A78BFA)',
-            opacity:.2,borderRadius:2}}/>
-          <div style={{display:'flex',flexDirection:'column',gap:0}}>
-            {MILESTONES.map((m,i)=>(
-              <motion.div key={m.year}
-                initial={{opacity:0,x:-20}} whileInView={{opacity:1,x:0}}
-                viewport={{once:true}} transition={{delay:i*.1,duration:.5}}
-                style={{display:'flex',gap:24,paddingBottom:i<MILESTONES.length-1?32:0}}>
-                <div style={{position:'relative',flexShrink:0,width:36}}>
-                  <div style={{width:12,height:12,borderRadius:'50%',marginTop:5,
-                    background:'linear-gradient(135deg,#22D3EE,#6366F1)',
-                    border:'2px solid #020617',
-                    boxShadow:'0 0 10px rgba(34,211,238,0.45)',
-                    marginLeft:10,position:'relative',zIndex:2}}/>
-                </div>
-                <div>
-                  <span style={{fontSize:12,fontWeight:700,color:'#22D3EE',
-                    fontFamily:FONT,letterSpacing:'0.08em'}}>{m.year}</span>
-                  <p style={{fontSize:14,color:'rgba(209,217,232,0.75)',lineHeight:1.7,
-                    fontFamily:FONT,marginTop:4,maxWidth:'52ch'}}>{m.event}</p>
-                </div>
-              </motion.div>
-            ))}
+        {/* Bouncing Scroll indicator */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.6, duration: 0.5 }}
+          style={{ animation: 'lmBounce 2.5s ease-in-out infinite', marginTop: 80 }}
+          className="flex justify-center"
+        >
+          <div className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center p-2">
+            <div className="w-1 h-2 rounded-full bg-[#35D0FF]" />
           </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ── Mission / Vision ── */
-function MissionVision() {
-  return (
-    <section style={{backgroundColor:BG,padding:'72px 0'}}>
-      <div style={{maxWidth:1200,margin:'0 auto',padding:'0 24px',
-        display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:20}}>
-        {[
-          {label:'Mission',title:'Transform ideas into scalable digital products',
-            desc:"We exist to bridge the gap between ambitious business goals and the technology needed to achieve them — turning vision into working software that drives real growth.",
-            accent:'#22D3EE'},
-          {label:'Vision',title:'Become the most trusted product engineering partner',
-            desc:'A world where any organisation — regardless of size or sector — can access the same calibre of digital product thinking and execution as the world\'s leading tech companies.',
-            accent:'#6366F1'},
-          {label:'Philosophy',title:'Great software is a craft, not a commodity',
-            desc:'We slow down to think before we build. We challenge requirements, ask hard questions, and propose better approaches. The best code is often less code.',
-            accent:'#A78BFA'},
-        ].map((item,i)=>(
-          <motion.div key={item.label} {...fadeUpProps(i*.1)}
-            style={{borderRadius:24,padding:'32px 28px',
-              background:`linear-gradient(135deg,${item.accent}0d,rgba(255,255,255,0.025))`,
-              border:`1px solid ${item.accent}25`,
-              boxShadow:`0 8px 32px ${item.accent}0d`}}>
-            <p style={{fontSize:10,fontWeight:700,textTransform:'uppercase',
-              letterSpacing:'0.2em',color:item.accent,fontFamily:FONT,marginBottom:12}}>{item.label}</p>
-            <h3 style={{fontSize:18,fontWeight:800,color:'#fff',lineHeight:1.3,
-              fontFamily:FONT,marginBottom:14}}>{item.title}</h3>
-            <p style={{fontSize:14,color:'rgba(148,163,184,0.8)',lineHeight:1.75,fontFamily:FONT}}>
-              {item.desc}
-            </p>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-/* ── Values grid ── */
-function ValuesGrid() {
-  return (
-    <section style={{backgroundColor:BG,padding:'72px 0'}}>
-      <div style={{maxWidth:1200,margin:'0 auto',padding:'0 24px'}}>
-        <motion.div {...fadeUpProps()} style={{marginBottom:40}}>
-          <SectionLabel>Values</SectionLabel>
-          <h2 style={{fontSize:'clamp(1.7rem,3vw,2.5rem)',fontWeight:800,color:'#fff',
-            letterSpacing:'-0.01em',fontFamily:FONT,lineHeight:1.2}}>
-            How we think and work
-          </h2>
         </motion.div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))',gap:16}}>
-          {VALUES.map((v,i)=>(
-            <motion.div key={v.title} {...fadeUpProps(i*.08)}
-              whileHover={{y:-5}}
-              style={{borderRadius:20,padding:'24px 22px',cursor:'default',
-                background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',
-                transition:'all 250ms'}}>
-              <div style={{width:40,height:40,borderRadius:12,marginBottom:16,
-                background:`${v.accent}14`,border:`1px solid ${v.accent}30`,
-                display:'flex',alignItems:'center',justifyContent:'center',color:v.accent}}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={v.icon}/>
-                </svg>
+      </div>
+    </section>
+  )
+}
+
+/* ── Technology Stack ── */
+const TECH_STACK = [
+  {
+    title: 'Frontend UI',
+    subtitle: (
+      <>
+        HTML5 / SASS /
+        <br />
+        GSAP
+      </>
+    ),
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-16 h-16 mx-auto" fill="currentColor">
+        <path d="M1.5 0h21l-1.9 21.2L12 24 3.4 21.2z" fill="#E34F26"/>
+        <path d="M12 2.2v19.6l6.8-1.9 1.6-17.7z" fill="#F06529"/>
+        <path d="M12 9.6H8.5l-.2-3H12V3.8H5.1l.8 9H12v-3.2zm0 6.6l-3.3-.9-.2-2.5H5.3l.4 4.9 6.3 1.7v-3.2z" fill="#EAEAEA"/>
+        <path d="M12 9.6v3.2h4.8l-.5 5-4.3 1.2v3.2l6.3-1.7.9-10.9H12zm0-5.8v2.8h6.9l.2-2.8H12z" fill="#FFFFFF"/>
+      </svg>
+    ),
+    color: '#E34F26'
+  },
+  {
+    title: 'Modern SPA',
+    subtitle: (
+      <>
+        React / TypeScript
+        <br />
+        / Next.js
+      </>
+    ),
+    icon: (
+      <svg viewBox="-11.5 -10.23174 23 20.46348" className="w-16 h-16 mx-auto" fill="none" stroke="#61DAFB" strokeWidth="1.2">
+        <circle cx="0" cy="0" r="2.05" fill="#61DAFB"/>
+        <ellipse rx="11" ry="4.2" />
+        <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+        <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+      </svg>
+    ),
+    color: '#61DAFB'
+  },
+  {
+    title: 'Backend Scale',
+    subtitle: (
+      <>
+        Node.js / Express /
+        <br />
+        Bun
+      </>
+    ),
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-16 h-16 mx-auto" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1.8 15.5c-1.2 0-2.2-1-2.2-2.2v-4.5h1.8v4.5c0 .2.2.4.4.4h1.1c.2 0 .4-.2.4-.4v-4.5h1.8v4.5c0 1.2-1 2.2-2.2 2.2h-1.3z" fill="#339933" />
+      </svg>
+    ),
+    color: '#339933'
+  },
+  {
+    title: 'Enterprise ERP',
+    subtitle: (
+      <>
+        PHP 8 / Laravel 11
+      </>
+    ),
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-16 h-16 mx-auto" fill="none" stroke="#FF2D20" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+      </svg>
+    ),
+    color: '#FF2D20'
+  },
+  {
+    title: 'Cloud Native',
+    subtitle: (
+      <>
+        AWS / GCP /
+        <br />
+        Docker
+      </>
+    ),
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-16 h-16 mx-auto" fill="currentColor">
+        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="#0EA5E9" />
+      </svg>
+    ),
+    color: '#0EA5E9'
+  }
+]
+
+function TechnologyStack() {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.08 }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 35, rotate: 1 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      rotate: 0,
+      transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] }
+    }
+  }
+
+  return (
+    <section ref={ref} className="py-[140px] relative overflow-hidden" style={{ backgroundColor: BG }}>
+      <div className="pointer-events-none absolute left-0 top-0 h-[500px] w-[500px] rounded-full bg-[#35D0FF]/3 blur-[140px]" />
+      
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-[720px] mx-auto mb-16"
+        >
+          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#35D0FF] mb-4" style={{ fontFamily: FONT }}>
+            Technology Stack
+          </p>
+          <h2 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight" style={{ fontFamily: FONT }}>
+            Modern Tools for Production-Grade Software
+          </h2>
+          <p className="mt-4 text-[#9CA7C7] text-[18px] leading-[1.8] max-w-[720px] mx-auto" style={{ fontFamily: FONT }}>
+            A production-ready stack selected for speed, stability, and scale.
+          </p>
+        </motion.div>
+
+        {/* Categories Grid */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+        >
+          {TECH_STACK.map((tech, i) => (
+            <motion.div
+              key={tech.title}
+              variants={itemVariants}
+              whileHover={{
+                y: -12,
+                scale: 1.03,
+                borderColor: tech.color + '66',
+                boxShadow: `0 20px 45px ${tech.color}1d`
+              }}
+              className="group relative rounded-[24px] border border-white/8 bg-[#121B2D]/55 p-8 text-center backdrop-blur-[20px] transition-all duration-[0.4s] flex flex-col items-center justify-center min-h-[320px] cursor-default overflow-hidden"
+            >
+              {/* Sliding Glow/Shine Sweep */}
+              <div className="absolute top-0 bottom-0 w-[60%] bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 -left-[150%] pointer-events-none group-hover:animate-[lmGlowSweep_1.2s_ease-in-out_forwards]" />
+              
+              {/* Floating Icon Wrapper */}
+              <div 
+                style={{ 
+                  animation: i % 2 === 0 ? 'lmFloatIcon 5s ease-in-out infinite' : 'lmFloatIconAlt 6s ease-in-out infinite',
+                  animationDelay: `${i * 0.3}s`
+                }}
+                className="mb-6"
+              >
+                {tech.icon}
               </div>
-              <h3 style={{fontSize:15,fontWeight:700,color:'#fff',marginBottom:8,fontFamily:FONT}}>
-                {v.title}
+
+              <h3 className="text-xl font-extrabold text-white mb-3" style={{ fontFamily: FONT }}>
+                {tech.title}
               </h3>
-              <p style={{fontSize:13,color:'rgba(148,163,184,0.78)',lineHeight:1.7,fontFamily:FONT}}>
-                {v.desc}
+              <p className="text-[#9CA7C7] text-sm leading-relaxed" style={{ fontFamily: FONT }}>
+                {tech.subtitle}
               </p>
             </motion.div>
           ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ── Expertise bars ── */
-function ExpertiseBars() {
-  const ref = useRef(null)
-  const inView = useInView(ref,{once:true,margin:'-60px'})
-  return (
-    <section ref={ref} style={{backgroundColor:BG,padding:'72px 0'}}>
-      <div style={{maxWidth:800,margin:'0 auto',padding:'0 24px'}}>
-        <motion.div {...fadeUpProps()} style={{marginBottom:36}}>
-          <SectionLabel>Expertise</SectionLabel>
-          <h2 style={{fontSize:'clamp(1.7rem,3vw,2.5rem)',fontWeight:800,color:'#fff',
-            letterSpacing:'-0.01em',fontFamily:FONT,lineHeight:1.2}}>
-            What we do best
-          </h2>
         </motion.div>
-        <div style={{display:'flex',flexDirection:'column',gap:20}}>
-          {EXPERTISE.map((e,i)=>(
-            <motion.div key={e.label}
-              initial={{opacity:0,x:-16}} animate={inView?{opacity:1,x:0}:{}}
-              transition={{delay:i*.1,duration:.5}}>
-              <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-                <span style={{fontSize:13,fontWeight:600,color:'rgba(209,217,232,0.85)',fontFamily:FONT}}>
-                  {e.label}
-                </span>
-                <span style={{fontSize:13,fontWeight:700,color:e.color,fontFamily:FONT}}>
-                  {e.pct}%
-                </span>
-              </div>
-              <div style={{height:7,borderRadius:999,background:'rgba(255,255,255,0.06)',overflow:'hidden'}}>
-                <motion.div initial={{width:0}}
-                  animate={inView?{width:`${e.pct}%`}:{width:0}}
-                  transition={{duration:1.2,delay:.3+i*.12,ease:[.22,1,.36,1]}}
-                  style={{height:'100%',borderRadius:999,
-                    background:`linear-gradient(90deg,${e.color},${e.color}88)`,
-                    boxShadow:`0 0 12px ${e.color}50`}}/>
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </div>
     </section>
   )
 }
 
-/* ── Stats ── */
-function StatsRow() {
+/* ── Why Businesses Choose Jigyasa ── */
+function WhyBusinessesChooseJigyasa() {
   const ref = useRef(null)
-  const inView = useInView(ref,{once:true,margin:'-60px'})
+  const inView = useInView(ref, { once: true, margin: '-100px' })
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.12,
+      }
+    }
+  }
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50, rotate: 1 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      rotate: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    }
+  }
+
+  const cards = [
+    {
+      icon: Rocket,
+      title: 'Fast Execution',
+      description: 'We deliver in short development cycles with continuous feedback, helping ideas reach production faster.'
+    },
+    {
+      icon: Shield,
+      title: 'Reliable Engineering',
+      description: 'Maintainable architecture, secure development practices, and production-ready code from day one.'
+    },
+    {
+      icon: Users,
+      title: 'Collaborative Partnership',
+      description: 'We work closely with clients throughout the project instead of disappearing after delivery.'
+    },
+    {
+      icon: Layers,
+      title: 'Scalable Solutions',
+      description: 'Every solution is designed to grow with your business rather than requiring a rebuild later.'
+    }
+  ]
+
   return (
-    <section ref={ref} style={{backgroundColor:BG,padding:'56px 0'}}>
-      <div style={{maxWidth:1200,margin:'0 auto',padding:'0 24px',
-        display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:16,
-        borderRadius:24,background:'rgba(255,255,255,0.025)',
-        border:'1px solid rgba(255,255,255,0.07)',backdropFilter:'blur(12px)'}}>
-        {STATS.map((s,i)=>(
-          <motion.div key={s.label}
-            initial={{opacity:0,y:20}} animate={inView?{opacity:1,y:0}:{}}
-            transition={{delay:i*.08,duration:.5}}
-            style={{textAlign:'center',padding:'28px 16px',cursor:'default'}}>
-            <div style={{fontSize:'clamp(1.8rem,3.5vw,2.8rem)',fontWeight:900,fontFamily:FONT,
-              background:'linear-gradient(90deg,#22D3EE,#A78BFA)',
-              WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',
-              backgroundClip:'text'}}>{s.value}</div>
-            <div style={{fontSize:10,fontWeight:600,letterSpacing:'0.1em',
-              textTransform:'uppercase',color:'rgba(148,163,184,0.6)',
-              marginTop:7,fontFamily:FONT}}>{s.label}</div>
-          </motion.div>
-        ))}
+    <section
+      ref={ref}
+      style={{ backgroundColor: '#070B17' }}
+      className="py-[140px] relative overflow-hidden"
+    >
+      {/* Background glow effects */}
+      <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-[#35D0FF]/4 blur-[120px]" />
+      <div className="pointer-events-none absolute right-0 bottom-0 h-96 w-96 rounded-full bg-[#6C63FF]/4 blur-[120px]" />
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-[720px] mx-auto mb-16"
+        >
+          <h2 
+            className="font-extrabold text-white tracking-tight leading-tight text-[36px] md:text-[48px] lg:text-[64px]"
+            style={{ fontFamily: FONT }}
+          >
+            Why Businesses Choose Jigyasa
+          </h2>
+          <p 
+            className="mt-6 text-[#9CA7C7] text-[18px] leading-[1.8] max-w-[720px] mx-auto"
+            style={{ fontFamily: FONT }}
+          >
+            Focused on practical engineering, transparent collaboration, and scalable digital solutions.
+          </p>
+        </motion.div>
+
+        {/* Cards Grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? 'visible' : 'hidden'}
+          className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 lg:gap-8"
+        >
+          {cards.map((card, i) => {
+            const Icon = card.icon
+            return (
+              <motion.div
+                key={i}
+                variants={cardVariants}
+                whileHover={{
+                  y: -12,
+                  scale: 1.03,
+                  boxShadow: '0 20px 45px rgba(53, 208, 255, 0.18)',
+                  borderColor: 'rgba(53, 208, 255, 0.35)',
+                }}
+                transition={{
+                  duration: 0.45,
+                  ease: [0.22, 0.61, 0.36, 1]
+                }}
+                className="group relative rounded-[28px] border border-white/8 bg-[#121B2D]/55 p-8 md:p-10 backdrop-blur-[20px] cursor-default overflow-hidden"
+              >
+                {/* Sliding Glow/Shine Sweep */}
+                <div className="absolute top-0 bottom-0 w-[50%] bg-gradient-to-r from-transparent via-[#35D0FF]/10 to-transparent skew-x-12 -left-[150%] pointer-events-none group-hover:animate-[lmGlowSweep_1.1s_ease-in-out_forwards]" />
+                
+                {/* Subtle border glow overlay */}
+                <div className="absolute inset-0 border border-[#35D0FF]/0 rounded-[28px] group-hover:border-[#35D0FF]/15 transition-colors duration-[0.45s]" />
+                
+                <div className="flex flex-col gap-6">
+                  {/* Icon Wrapper with floating animation */}
+                  <div 
+                    style={{ 
+                      animation: i % 2 === 0 ? 'lmFloatIcon 6s ease-in-out infinite' : 'lmFloatIconAlt 5s ease-in-out infinite',
+                      animationDelay: `${i * 0.45}s`
+                    }}
+                    className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-[#35D0FF] group-hover:text-white group-hover:bg-[#35D0FF] transition-all duration-[0.45s] self-start"
+                  >
+                    <Icon className="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-[0.45s]" />
+                  </div>
+                  
+                  {/* Text Content */}
+                  <div>
+                    <h3 
+                      className="text-2xl font-extrabold text-white"
+                      style={{ fontFamily: FONT }}
+                    >
+                      {card.title}
+                    </h3>
+                    <p 
+                      className="mt-3 text-[#9CA7C7] text-base leading-relaxed"
+                      style={{ fontFamily: FONT }}
+                    >
+                      {card.description}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </motion.div>
       </div>
     </section>
   )
@@ -314,17 +436,14 @@ function StatsRow() {
 
 export default function LearnMore() {
   return (
-    <div style={{minHeight:'100vh',backgroundColor:BG,color:'#F8FAFC'}}>
+    <div style={{ minHeight: '100vh', backgroundColor: BG, color: '#F8FAFC' }}>
       <style>{KF}</style>
-      <Navbar/>
-      <LMHero/>
-      <Timeline/>
-      <MissionVision/>
-      <ValuesGrid/>
-      <ExpertiseBars/>
-      <StatsRow/>
-      <CallToAction/>
-      <Footer/>
+      <Navbar />
+      <LMHero />
+      <TechnologyStack />
+      <WhyBusinessesChooseJigyasa />
+      <CallToAction />
+      <Footer />
     </div>
   )
 }
