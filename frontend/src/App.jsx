@@ -5,6 +5,8 @@ import { ThemeProvider } from './context/ThemeContext'
 import Home       from './pages/Home'
 import About      from './pages/About'
 import Services   from './pages/Services'
+import CaseStudy  from './pages/CaseStudy'
+import Portfolio  from './pages/Portfolio'
 import LearnMore  from './pages/LearnMore'
 import Industries from './pages/Industries'
 import Contact    from './pages/Contact'
@@ -29,6 +31,8 @@ function AppInner() {
         <Route path="/"            element={<Home />}       />
         <Route path="/about"       element={<About />}      />
         <Route path="/services"    element={<Services />}   />
+        <Route path="/work/:slug"  element={<CaseStudy />}  />
+        <Route path="/portfolio"   element={<Portfolio />}  />
         <Route path="/learn-more"  element={<LearnMore />}  />
         <Route path="/industries"  element={<Industries />} />
         <Route path="/contact"     element={<Contact />}    />

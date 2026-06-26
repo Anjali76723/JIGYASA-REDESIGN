@@ -13,6 +13,9 @@ export default function CallToAction() {
             <Link to="/contact" className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-semibold bg-gradient-to-r from-cyan-400 to-indigo-500 text-white shadow-lg transform transition-all duration-200 hover:scale-[1.02] hover:shadow-[0_12px_40px_rgba(34,211,238,0.15)]">
               Book Free Consultation
             </Link>
+            <Link to="/portfolio" className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-medium bg-white/5 text-white border border-white/10 hover:bg-white/8 transform transition-all duration-200">
+              View Portfolio
+            </Link>
           </div>
         </div>
       </div>
