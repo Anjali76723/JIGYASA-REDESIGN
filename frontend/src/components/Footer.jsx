@@ -86,13 +86,6 @@ const socials = [
   },
 ]
 
-const metrics = [
-  { value: '500+', label: 'Projects Delivered'   },
-  { value: '98%',  label: 'Client Satisfaction'  },
-  { value: '50+',  label: 'Experts'              },
-  { value: '10+',  label: 'Years Experience'     },
-]
-
 /* ─────────────────────────────────────────────────────────
    WIREFRAME GLOBE  — pure SVG, no canvas, zero deps
 ───────────────────────────────────────────────────────── */
@@ -180,30 +173,6 @@ function WireframeGlobe() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   METRIC CARD  — scroll-reveal count-up
-───────────────────────────────────────────────────────── */
-function MetricCard({ value, label, delay, visible }) {
-  return (
-    <div
-      className="text-center transition-all duration-700 cursor-default"
-      style={{
-        opacity:    visible ? 1 : 0,
-        transform:  visible ? 'translateY(0)' : 'translateY(24px)',
-        transitionDelay: `${delay}ms`,
-      }}
-    >
-      <div
-        className="text-5xl font-black bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent"
-        style={{ fontVariantNumeric: 'tabular-nums' }}
-      >
-        {value}
-      </div>
-      <p className="mt-2 text-sm text-slate-400">{label}</p>
-    </div>
-  )
-}
-
-/* ─────────────────────────────────────────────────────────
    MAIN FOOTER COMPONENT
 ───────────────────────────────────────────────────────── */
 export default function Footer() {
@@ -279,27 +248,6 @@ export default function Footer() {
         }}
       >
         <WireframeGlobe/>
-      </div>
-
-      {/* ════════════════════════════════════════════
-          METRICS STRIP
-      ════════════════════════════════════════════ */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20">
-        {/* Top rule */}
-        <div className="h-px w-full mb-16"
-          style={{background:'linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent)'}}/>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-          {metrics.map((m, i) => (
-            <MetricCard
-              key={m.label}
-              value={m.value}
-              label={m.label}
-              delay={i * 80}
-              visible={visible}
-            />
-          ))}
-        </div>
       </div>
 
       {/* ════════════════════════════════════════════

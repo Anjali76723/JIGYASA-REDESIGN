@@ -1,7 +1,6 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
-import ImpactMatrix from './ImpactMatrix'
 import SoftwareArchitectureMap from './SoftwareArchitectureMap'
 
 /* ── Animation variants ── */
@@ -139,9 +138,6 @@ export default function AboutSection() {
           </div>
         </div>
       </div>
-
-      {/* ── PART B: ImpactMatrix full-width ── */}
-      <ImpactMatrix />
     </section>
   )
 }
