@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import ContactFormContent from './ContactFormContent'
 
@@ -8,26 +8,32 @@ import ContactFormContent from './ContactFormContent'
  * Props:
  *  - isOpen   {boolean}   whether the modal is visible
  *  - onClose  {function}  called when user dismisses the modal
- *
- * UX:
- *  - Fixed full-viewport overlay, always truly centered (no scroll drift)
- *  - Very dark backdrop (0.92 opacity) — no blur on backdrop so background
- *    reads as properly dark rather than washed-out
- *  - Solid dark card background so form text is fully legible
- *  - Prominent close ✕ button inside the top-right of the card
- *  - Wide panel (max-w-3xl / 768 px) for comfortable two-column layout
- *  - Inner scroll only within the panel when viewport is short
- *  - Click outside → close  |  Escape → close
- *  - Body scroll locked while open
- *  - Smooth enter / exit animations
  */
 export default function ContactModal({ isOpen, onClose }) {
   const overlayRef = useRef(null)
 
+  /* ── Delayed unmount so exit animation can finish ── */
+  const [mounted, setMounted]  = useState(false)
+  const [visible, setVisible]  = useState(false)
+  const exitTimer = useRef(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      clearTimeout(exitTimer.current)
+      setMounted(true)
+      /* tiny rAF so the enter animation fires after mount */
+      requestAnimationFrame(() => setVisible(true))
+    } else {
+      setVisible(false)
+      /* unmount after exit animation completes (260ms) */
+      exitTimer.current = setTimeout(() => setMounted(false), 280)
+    }
+    return () => clearTimeout(exitTimer.current)
+  }, [isOpen])
+
   /* ── Lock body scroll while open ── */
   useEffect(() => {
     if (isOpen) {
-      /* Prevent layout shift by compensating for scrollbar width */
       const scrollbarW = window.innerWidth - document.documentElement.clientWidth
       document.body.style.overflow    = 'hidden'
       document.body.style.paddingRight = `${scrollbarW}px`
@@ -53,7 +59,8 @@ export default function ContactModal({ isOpen, onClose }) {
     if (e.target === overlayRef.current) onClose()
   }
 
-  if (typeof document === 'undefined') return null
+  /* Never render on server, never render when not mounted */
+  if (typeof document === 'undefined' || !mounted) return null
 
   const modal = (
     <>
@@ -94,7 +101,7 @@ export default function ContactModal({ isOpen, onClose }) {
         role="dialog"
         aria-modal="true"
         aria-label="Contact form"
-        className={isOpen ? 'cm-backdrop-in' : 'cm-backdrop-out'}
+        className={visible ? 'cm-backdrop-in' : 'cm-backdrop-out'}
         style={{
           position:       'fixed',
           inset:          0,
@@ -103,11 +110,9 @@ export default function ContactModal({ isOpen, onClose }) {
           alignItems:     'center',
           justifyContent: 'center',
           padding:        '24px 16px',
-          /* Very dark — matches premium SaaS modals (Linear, Vercel, Notion) */
           background:     'rgba(0, 0, 0, 0.88)',
-          /* No backdrop-filter — keeps the dark feel crisp */
           overflowY:      'auto',
-          pointerEvents:  isOpen ? 'auto' : 'none',
+          pointerEvents:  visible ? 'auto' : 'none',
         }}
       >
         {/*
@@ -118,7 +123,7 @@ export default function ContactModal({ isOpen, onClose }) {
           than the viewport (panel scrolls inside the overlay).
         */}
         <div
-          className={isOpen ? 'cm-panel-in' : 'cm-panel-out'}
+          className={visible ? 'cm-panel-in' : 'cm-panel-out'}
           style={{
             position:     'relative',
             width:        '100%',

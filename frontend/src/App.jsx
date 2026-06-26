@@ -13,10 +13,6 @@ import Industries from './pages/Industries'
 import Contact    from './pages/Contact'
 
 import ContactModal from './components/shared/ContactModal'
-import {
-  useContactModalTrigger,
-  markContactModalDismissed,
-} from './hooks/useContactModalTrigger'
 
 /* ── Modal context — lets any component open it ── */
 const ContactModalContext = createContext(null)
@@ -28,13 +24,7 @@ function AppInner() {
   const [modalOpen, setModalOpen] = useState(false)
 
   const openModal  = useCallback(() => setModalOpen(true), [])
-  const closeModal = useCallback(() => {
-    setModalOpen(false)
-    markContactModalDismissed()
-  }, [])
-
-  /* Auto-trigger: 8s timer OR 50% scroll, once per session */
-  useContactModalTrigger(openModal)
+  const closeModal = useCallback(() => setModalOpen(false), [])
 
   return (
     <ContactModalContext.Provider value={{ openModal, closeModal }}>

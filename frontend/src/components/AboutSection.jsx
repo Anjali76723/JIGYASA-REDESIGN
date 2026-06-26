@@ -1,7 +1,8 @@
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import ImpactMatrix from './ImpactMatrix'
+import SoftwareArchitectureMap from './SoftwareArchitectureMap'
 
 /* ── Animation variants ── */
 const fadeUp = {
@@ -28,71 +29,8 @@ const leftContainer = {
   visible: { transition: { staggerChildren: 0.1 } },
 }
 
-const valueBlockVariant = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: 'easeOut', delay: 0.45 + i * 0.12 },
-  }),
-}
-
 /* ── Strength pills ── */
 const pills = ['Strategy', 'Design', 'Engineering']
-
-/* ── Value blocks ── */
-const valueBlocks = [
-  {
-    label: 'Innovation',
-    desc: 'Ideas become products',
-    color: '#22D3EE',
-    bg: 'rgba(34,211,238,0.12)',
-    border: 'rgba(34,211,238,0.25)',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="#22D3EE" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-        <path d="M10 2a6 6 0 016 6c0 2.5-1.5 4.5-3.5 5.5V15a1 1 0 01-1 1H8.5a1 1 0 01-1-1v-1.5C5.5 12.5 4 10.5 4 8a6 6 0 016-6z" />
-        <path d="M8 18h4" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Engineering',
-    desc: 'Built to scale, built to last',
-    color: '#6366F1',
-    bg: 'rgba(99,102,241,0.12)',
-    border: 'rgba(99,102,241,0.25)',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="#6366F1" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-        <path d="M13 3L9 7l4 4M7 3l4 4-4 4" />
-        <rect x="2" y="2" width="16" height="16" rx="3" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Growth',
-    desc: 'Measured by client outcomes',
-    color: '#A78BFA',
-    bg: 'rgba(167,139,250,0.12)',
-    border: 'rgba(167,139,250,0.25)',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="#A78BFA" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-        <polyline points="2 14 7 9 11 13 18 5" />
-        <path d="M14 5h4v4" />
-      </svg>
-    ),
-  },
-]
-
-/* ── Code bar decorative lines ── */
-const codeBars = [
-  { width: '72%', color: '#22D3EE' },
-  { width: '50%', color: '#6366F1' },
-  { width: '85%', color: '#A78BFA' },
-  { width: '38%', color: '#22D3EE' },
-  { width: '61%', color: '#F472B6' },
-  { width: '45%', color: '#6366F1' },
-  { width: '78%', color: '#A78BFA' },
-]
 
 export default function AboutSection() {
   const ref = useRef(null)
@@ -187,78 +125,15 @@ export default function AboutSection() {
               </motion.div>
             </motion.div>
 
-            {/* ── RIGHT COLUMN — Visual composition panel ── */}
+            {/* ── RIGHT COLUMN — Software Architecture Map ── */}
             <motion.div
               variants={fadeRight}
               initial="hidden"
               animate={inView ? 'visible' : 'hidden'}
-              className="relative"
+              className="relative flex items-center justify-center"
+              style={{ minHeight: 720 }}
             >
-              {/* Floating accent dots */}
-              <div className="pointer-events-none absolute -top-5 -right-5 h-9 w-9 rounded-full bg-cyan-400 blur-xl opacity-40" />
-              <div className="pointer-events-none absolute -bottom-5 -left-5 h-9 w-9 rounded-full bg-indigo-500 blur-xl opacity-30" />
-
-              {/* Card outer glow */}
-              <div className="pointer-events-none absolute inset-0 rounded-[32px] bg-gradient-to-br from-cyan-500/10 via-transparent to-indigo-500/10 blur-2xl scale-105" />
-
-              <div
-                className="relative rounded-[32px] bg-white/[0.06] border border-white/10 backdrop-blur-xl p-8 sm:p-10"
-                style={{ boxShadow: '0 24px 60px rgba(99,102,241,0.10)' }}
-              >
-                {/* Value blocks */}
-                <div className="flex flex-col gap-5 mb-8">
-                  {valueBlocks.map((block, i) => (
-                    <motion.div
-                      key={block.label}
-                      custom={i}
-                      variants={valueBlockVariant}
-                      initial="hidden"
-                      animate={inView ? 'visible' : 'hidden'}
-                      className="flex items-center gap-4"
-                    >
-                      {/* Icon box */}
-                      <div
-                        className="flex-shrink-0 h-[28px] w-[28px] rounded-xl flex items-center justify-center"
-                        style={{ background: block.bg, border: `1px solid ${block.border}` }}
-                      >
-                        {block.icon}
-                      </div>
-                      {/* Text */}
-                      <div>
-                        <div className="text-sm font-bold text-white">{block.label}</div>
-                        <div className="text-xs text-slate-400 mt-0.5">{block.desc}</div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Decorative code snippet visual */}
-                <div
-                  className="rounded-2xl p-5"
-                  style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.06)' }}
-                >
-                  <div className="flex items-center gap-1.5 mb-4">
-                    <div className="h-2.5 w-2.5 rounded-full bg-red-500/60" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-yellow-400/60" />
-                    <div className="h-2.5 w-2.5 rounded-full bg-green-400/60" />
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    {codeBars.map((bar, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="h-1 w-4 rounded-full" style={{ background: 'rgba(255,255,255,0.12)' }} />
-                        <div
-                          className="h-2 rounded-full"
-                          style={{
-                            width: bar.width,
-                            background: `linear-gradient(90deg, ${bar.color}99, ${bar.color}44)`,
-                            opacity: 0.75,
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <SoftwareArchitectureMap inView={inView} />
             </motion.div>
 
           </div>
