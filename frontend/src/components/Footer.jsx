@@ -13,11 +13,11 @@ const quickLinks = [
 ]
 
 const serviceLinks = [
-  { label: 'Web Development',  href: '/services' },
-  { label: 'Mobile Apps',      href: '/services' },
-  { label: 'UI/UX Design',     href: '/services' },
-  { label: 'Cloud & DevOps',   href: '/services' },
-  { label: 'AI Solutions',     href: '/services' },
+  { label: 'Web Development',  href: '/services/web-development' },
+  { label: 'Mobile Apps',      href: '/services/mobile-applications' },
+  { label: 'UI/UX Design',     href: '/services/ui-ux-design' },
+  { label: 'Cloud & DevOps',   href: '/services/cloud-devops' },
+  { label: 'AI Solutions',     href: '/services/ai-automation' },
 ]
 
 const contactItems = [

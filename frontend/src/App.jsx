@@ -1,10 +1,11 @@
-﻿import { useState, useCallback, createContext, useContext } from 'react'
+import { useState, useCallback, createContext, useContext } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 
 import Home       from './pages/Home'
 import About      from './pages/About'
 import Services   from './pages/Services'
+import ServiceDetail from './pages/ServiceDetail'
 import CaseStudy  from './pages/CaseStudy'
 import Portfolio  from './pages/Portfolio'
 import LearnMore  from './pages/LearnMore'
@@ -31,6 +32,7 @@ function AppInner() {
         <Route path="/"            element={<Home />}       />
         <Route path="/about"       element={<About />}      />
         <Route path="/services"    element={<Services />}   />
+        <Route path="/services/:serviceId" element={<ServiceDetail />} />
         <Route path="/work/:slug"  element={<CaseStudy />}  />
         <Route path="/portfolio"   element={<Portfolio />}  />
         <Route path="/learn-more"  element={<LearnMore />}  />
