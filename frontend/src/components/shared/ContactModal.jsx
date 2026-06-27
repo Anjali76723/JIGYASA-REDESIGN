@@ -268,7 +268,7 @@ export default function ContactModal({ isOpen, onClose }) {
               the modal panel IS the card. Fields and logic are identical.
           ── */}
           <div style={{ position: 'relative', zIndex: 10, padding: '8px 28px 28px' }}>
-            <ContactFormContent bare />
+            <ContactFormContent bare onSuccess={() => setTimeout(onClose, 2000)} />
           </div>
 
         </div>

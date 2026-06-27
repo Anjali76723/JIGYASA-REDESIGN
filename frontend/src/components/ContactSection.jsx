@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react'
 import { motion, useInView } from 'framer-motion'
+import ContactFormContent from './shared/ContactFormContent'
 
 /* Lazy-load the Three.js sphere — never blocks first paint */
 const ContactSphere = lazy(() => import('./contact/ContactSphere'))
@@ -529,7 +530,6 @@ function CompanyContactCard({ inView }) {
 export default function ContactSection() {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-40px' })
-  const [toastVisible, setToastVisible] = useState(false)
 
   return (
     <section id="contact" ref={ref} style={{
@@ -673,27 +673,7 @@ export default function ContactSection() {
             initial={{ opacity: 0, x: 28 }} animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.18, ease: [0.22,1,0.36,1] }}
           >
-            <div style={{
-              position: 'relative', borderRadius: 28, padding: '36px 36px 40px',
-              background: 'linear-gradient(135deg,rgba(255,255,255,0.06) 0%,rgba(255,255,255,0.025) 100%)',
-              border: '1px solid rgba(255,255,255,0.09)', backdropFilter: 'blur(20px)',
-              boxShadow: '0 24px 80px rgba(99,102,241,0.12)',
-            }}>
-              {/* Top gradient accent line */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1,
-                borderRadius: '28px 28px 0 0',
-                background: 'linear-gradient(90deg,transparent,rgba(34,211,238,0.6),rgba(99,102,241,0.5),transparent)',
-              }} />
-              <div style={{ marginBottom: 28 }}>
-                <h3 style={{ fontSize: 22, fontWeight: 800, color: '#fff', fontFamily: FONT, marginBottom: 8 }}>
-                  Project Inquiry
-                </h3>
-                <p style={{ fontSize: 13, color: 'rgba(148,163,184,0.75)', lineHeight: 1.65, fontFamily: FONT }}>
-                  Share your vision and requirements. We'll help you transform it into a scalable product.
-                </p>
-              </div>
-              <ContactForm onSuccess={() => setToastVisible(true)} />
-            </div>
+            <ContactFormContent />
           </motion.div>
 
         </div>
@@ -712,8 +692,6 @@ export default function ContactSection() {
 
       </div>
 
-      {/* Toast notification */}
-      <Toast visible={toastVisible} onDone={() => setToastVisible(false)} />
     </section>
   )
 }
