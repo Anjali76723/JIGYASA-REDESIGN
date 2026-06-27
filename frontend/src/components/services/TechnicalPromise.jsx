@@ -74,7 +74,7 @@ export default function TechnicalPromise() {
   ]
 
   return (
-    <div className="relative w-full py-32 border-t border-white/5 overflow-hidden" style={{ backgroundColor: '#050816' }}>
+    <div className="relative w-full py-32 border-t border-white/5 overflow-hidden" style={{ backgroundColor: 'transparent' }}>
       
       {/* Background radial highlight */}
       <div className="absolute top-1/2 left-1/4 w-[600px] h-[400px] bg-purple-500/5 blur-[150px] rounded-full pointer-events-none" />

@@ -77,7 +77,7 @@ export default function DeliveryProcess() {
     <div 
       ref={containerRef}
       className="relative w-full py-32 border-t border-white/5 overflow-hidden" 
-      style={{ backgroundColor: '#050816' }}
+      style={{ backgroundColor: 'transparent' }}
     >
       {/* Dynamic keyframe for floating blob */}
       <style>{`

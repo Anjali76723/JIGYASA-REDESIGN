@@ -201,7 +201,7 @@ export default function Footer() {
     <footer
       ref={ref}
       className="relative overflow-hidden"
-      style={{ backgroundColor: '#020617' }}
+      style={{ backgroundColor: 'transparent' }}
     >
       {/* ── Keyframes ── */}
       <style>{`

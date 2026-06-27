@@ -52,7 +52,7 @@ export default function ServicesSection() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       className="relative w-full pt-36 pb-32 overflow-hidden" 
-      style={{ backgroundColor: PRIMARY_BG, color: '#fff' }}
+      style={{ backgroundColor: 'transparent', color: '#fff' }}
     >
       {/* Dynamic Keyframes for background animations */}
       <style>{`

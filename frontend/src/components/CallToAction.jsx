@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export default function CallToAction() {
   return (
-    <section className="relative py-20" style={{ backgroundColor: '#020617' }}>
+    <section className="relative py-20" style={{ backgroundColor: 'transparent' }}>
       <div className="pointer-events-none absolute -inset-x-40 -top-32 h-96 bg-gradient-to-r from-cyan-500/10 via-indigo-500/6 to-cyan-400/6 blur-3xl rounded-3xl" />
       <div className="relative z-10 max-w-4xl mx-auto px-6">
         <div className="bg-white/4 backdrop-blur-md border border-white/8 rounded-3xl p-10 text-center shadow-lg">

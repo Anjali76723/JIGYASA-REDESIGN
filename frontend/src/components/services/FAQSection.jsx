@@ -27,7 +27,7 @@ export default function FAQSection() {
   const [activeIndex, setActiveIndex] = useState(null)
 
   return (
-    <div className="relative w-full py-32 border-t border-white/5 overflow-hidden" style={{ backgroundColor: '#050816' }}>
+    <div className="relative w-full py-32 border-t border-white/5 overflow-hidden" style={{ backgroundColor: 'transparent' }}>
       
       {/* Background radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[150px] rounded-full pointer-events-none" />
