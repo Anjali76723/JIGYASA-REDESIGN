@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Terminal, Smartphone, PenTool, Cloud, Cpu, TrendingUp, 
+  Terminal, Smartphone, PenTool, Cloud, Cpu, 
   ArrowLeft, ArrowRight, CheckCircle, ChevronDown, Plus, 
   Play, RefreshCw, Zap, Server, Network, Layers, Shield,
   Laptop, Globe, Search, Database, BarChart2, Eye, Layout, Settings
@@ -10,6 +10,8 @@ import {
 import Navbar from '../components/Navbar'
 import CallToAction from '../components/CallToAction'
 import Footer from '../components/Footer'
+import { servicesData } from '../data/servicesData'
+import { useContactModal } from '../App'
 
 const FONT = 'Space Grotesk, Inter, system-ui'
 const PRIMARY_BG = '#050816'
@@ -159,7 +161,6 @@ function WebTerminalVisual() {
   ])
   const [isCompiling, setIsCompiling] = useState(false)
   const [apiActive, setApiActive] = useState(false)
-  const [apiResponse, setApiResponse] = useState(null)
 
   const triggerBuild = () => {
     if (isCompiling) return
@@ -177,10 +178,8 @@ function WebTerminalVisual() {
   const triggerApi = () => {
     if (apiActive) return
     setApiActive(true)
-    setApiResponse(null)
     setConsoleLogs(prev => [...prev, '$ curl -X GET https://api.jigyasa.io/v1/data'])
     setTimeout(() => {
-      setApiResponse({ status: 200, latency: '45ms', payload: { success: true, count: 502, source: 'TimescaleDB' } })
       setConsoleLogs(prev => [...prev, '✓ Response: 200 OK (45ms)'])
       setApiActive(false)
     }, 1200)
@@ -260,8 +259,8 @@ function MobilePhoneVisual() {
           </div>
           
           <div className="border-t border-white/5 pt-1.5 flex justify-around">
-            <button onClick={() => setActiveTab('analytics')} className={`text-[9px] ${activeTab === 'analytics' ? 'text-cyan-400' : 'text-slate-500'}`}>Metrics</button>
-            <button onClick={() => setActiveTab('security')} className={`text-[9px] ${activeTab === 'security' ? 'text-purple-400' : 'text-slate-500'}`}>Security</button>
+            <button onClick={() => setActiveTab('analytics')} className={`text-[9px] cursor-pointer ${activeTab === 'analytics' ? 'text-cyan-400' : 'text-slate-500'}`}>Metrics</button>
+            <button onClick={() => setActiveTab('security')} className={`text-[9px] cursor-pointer ${activeTab === 'security' ? 'text-purple-400' : 'text-slate-500'}`}>Security</button>
           </div>
         </div>
       </div>
@@ -550,284 +549,49 @@ function AutomationTracerVisual() {
   )
 }
 
-// ── SERVICES DATA DICTIONARY ──
-const SERVICES_DATA = {
-  'graphics-web-design': {
-    title: 'Graphics & Web Designing',
-    tagline: 'Premium Vector蓝图, Branding Identity, and High-Fidelity Graphics Assets',
-    icon: <PenTool className="w-8 h-8 text-cyan-400" />,
-    color: '#35D0FF',
-    glowColor: 'rgba(53,208,255,0.15)',
-    overview: 'We craft high-end vector graphics, visual assets, complete guidelines, and layout blueprints that distinguish your brand. Every asset is built with attention to detail and color grids.',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Brand Guidelines blue-print', desc: 'Detailed grids defining typography, color codes, logo variants, and layouts.' },
-      { title: 'Vector Graphic Packages', desc: 'Custom pixel-perfect brand asset packs built in vector shapes for scalability.' }
-    ],
-    benefits: [
-      { title: 'Modern Aesthetics', desc: 'Build premium layouts that convert user interest into high-yielding trust.' }
-    ],
-    techStack: ['Figma', 'Photoshop', 'Illustrator', 'Spline 3D'],
-    process: [
-      { id: '01', title: 'Asset Discoveries', desc: 'We audit brand guidelines, review spacing layouts, and align client requirements.' }
-    ],
-    faq: [
-      { q: 'What tools do you design in?', a: 'We utilize Figma, Adobe Illustrator, and Photoshop to export high-definition print and web assets.' }
-    ],
-    widget: <GraphicsBlobVisual />
-  },
-  'ui-ux-design': {
-    title: 'UI/UX Design & Prototyping',
-    tagline: 'Intentional Spacing, Purposeful User Journeys, and Clickable Figma Prototypes',
-    icon: <Layout className="w-8 h-8 text-purple-400" />,
-    color: '#a78bfa',
-    glowColor: 'rgba(167,139,250,0.15)',
-    overview: 'Wireframe models, user journey templates, visual layouts, and detailed interactive prototype sheets built to verify user logic and prevent development bugs.',
-    image: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Headless wireframing blueprints', desc: 'Fast block mockups defining visual grids before adding aesthetic colors.' },
-      { title: 'Clickable interactive flows', desc: 'Figma prototypes replicating web navigation paths.' }
-    ],
-    benefits: [
-      { title: 'Optimized conversion paths', desc: 'UX structures built to guide traffic actions directly to payment links.' }
-    ],
-    techStack: ['Figma', 'Framer', 'CSS Grid', 'Adobe XD'],
-    process: [
-      { id: '01', title: 'Wireframe Drafting', desc: 'Creating structural box models to finalize content hierarchy, navigation logic, and layout flows.' }
-    ],
-    faq: [
-      { q: 'Do you run usability tests?', a: 'Yes, we test interactive layouts with real user panels to find layout friction points before coding.' }
-    ],
-    widget: <UIUXPrototypeVisual />
-  },
-  'web-development': {
-    title: 'Web Development',
-    tagline: 'High-Performance Single Page Applications Compiled for Operational Speed',
-    icon: <Terminal className="w-8 h-8 text-cyan-400" />,
-    color: '#35D0FF',
-    glowColor: 'rgba(53,208,255,0.15)',
-    overview: 'We build premium, production-grade web applications from front-end design to complex backend APIs. Our team utilizes modern frameworks, microservices, and databases to deliver software that outperforms and outscales the competition.',
-    image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Single Page App frames', desc: 'Next.js server-side rendered structures optimizing page load speeds.' },
-      { title: 'Secure API Gateways', desc: 'GraphQL endpoints connecting web views to databases in milliseconds.' }
-    ],
-    benefits: [
-      { title: 'Speed & Conversion Lift', desc: 'Boost load speeds by up to 200%, dropping bounce rates and driving higher digital checkout margins.' }
-    ],
-    techStack: ['React', 'Next.js', 'TypeScript', 'Node.js', 'PostgreSQL'],
-    process: [
-      { id: '01', title: 'Schema Mappings', desc: 'Reviewing API schemas, throughput limits, and data tables before writing code.' }
-    ],
-    faq: [
-      { q: 'How do you handle backend scaling?', a: 'We design stateless Node endpoints scaling automatically behind proxy balance grids.' }
-    ],
-    widget: <WebTerminalVisual />
-  },
-  'mobile-app-development': {
-    title: 'Mobile App Development',
-    tagline: 'Butter-Smooth Native Swift/Kotlin and High-Fidelity React Native Apps',
-    icon: <Smartphone className="w-8 h-8 text-cyan-400" />,
-    color: '#35D0FF',
-    glowColor: 'rgba(53,208,255,0.15)',
-    overview: 'Native and cross-platform mobile apps built with clean layouts, push notifications routing, secure offline storage, and quick checkout scripts.',
-    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Native iOS Swift coding', desc: 'Maximum hardware integrations for smooth animations and low CPU cycles.' },
-      { title: 'Offline-First local storage', desc: 'SQLite DB scripts storing data local, syncing when WiFi connects.' }
-    ],
-    benefits: [
-      { title: 'High-retention interface apps', desc: 'Sleek notifications and widget layouts keeping clients active daily.' }
-    ],
-    techStack: ['React Native', 'Swift', 'Kotlin', 'Firebase', 'SQLite'],
-    process: [
-      { id: '01', title: 'App Frame wireframes', desc: 'Designing mock screens matching iOS touch zones.' }
-    ],
-    faq: [
-      { q: 'Do you help publish to store channels?', a: 'Yes, we take care of all store review specs, security credentials, and compliance forms.' }
-    ],
-    widget: <MobilePhoneVisual />
-  },
-  'software-engineering': {
-    title: 'Software Engineering',
-    tagline: 'Algorithmic Backend Nodes, Distributed Databases, and Clean Repository Code',
-    icon: <Database className="w-8 h-8 text-blue-400" />,
-    color: '#6366F1',
-    glowColor: 'rgba(99,102,241,0.15)',
-    overview: 'Robust software architectures designed for high-concurrency data transactions. We write clean, tested backend scripts that secure enterprise frameworks.',
-    image: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Microservice modular blocks', desc: 'Independently scaling backend code systems reducing server loads.' },
-      { title: 'Algorithmic safety checks', desc: 'Test cover pipelines auditing data integrity on every code commit.' }
-    ],
-    benefits: [
-      { title: 'System Uptime SLA (99.9%)', desc: 'Ensure software runs continuously without database locking bugs.' }
-    ],
-    techStack: ['C#', 'Go', 'Java', 'Python', 'PostgreSQL', 'Redis'],
-    process: [
-      { id: '01', title: 'Data Blueprints design', desc: 'Designing tables relationship models, key indexing, and sync routines.' }
-    ],
-    faq: [
-      { q: 'Which backend languages do you prioritize?', a: 'We focus on Go and Python for low-latency network gateways and high-speed data parsing.' }
-    ],
-    widget: <SoftwareNodesVisual />
-  },
-  'ecommerce-development': {
-    title: 'E-Commerce Development',
-    tagline: 'High-Converting Checkout Storefronts, Cart blue-prints, and Stripe Portals',
-    icon: <Globe className="w-8 h-8 text-purple-400" />,
-    color: '#a78bfa',
-    glowColor: 'rgba(167,139,250,0.15)',
-    overview: 'Online shopping storefront layouts optimized for high click-through ratios, safe payment gateways, inventory synchronization, and custom admin dashboards.',
-    image: 'https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Optimized check-out grids', desc: 'Checkout layouts styled to keep navigation inputs simple, boosting sales.' },
-      { title: 'Dynamic coupon calculators', desc: 'Live price reductions applied directly via API, calculating tax values.' }
-    ],
-    benefits: [
-      { title: 'Low checkout bounce rates', desc: 'Intuitive layouts matching cart paradigms convert window shoppers.' }
-    ],
-    techStack: ['Shopify API', 'Stripe SDK', 'Next.js', 'Redux'],
-    process: [
-      { id: '01', title: 'Catalog mapping design', desc: 'Configuring category tables, catalog structures, and tax matrix sheets.' }
-    ],
-    faq: [
-      { q: 'Can you integrate third-party ERP tools?', a: 'Yes, we sync stock updates and transaction data directly to SAP/Oracle ERPs.' }
-    ],
-    widget: <EcommerceBasketVisual />
-  },
-  'cms-development': {
-    title: 'CMS Development',
-    tagline: 'Headless CMS Architectures, Custom Blocks Editor, and Strapi Mappings',
-    icon: <Layers className="w-8 h-8 text-cyan-400" />,
-    color: '#35D0FF',
-    glowColor: 'rgba(53,208,255,0.15)',
-    overview: 'Tailored content management panels separating your databases from frontend code layout blocks. Update blog posts and layouts without code changes.',
-    image: 'https://images.unsplash.com/photo-1548092372-0d1bd40894a3?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Headless Sanity/Strapi panels', desc: 'Modern content panels connected securely to Next.js routes.' },
-      { title: 'Dynamic layout builders', desc: 'Custom Gutenberg blocks built to customize layouts easily.' }
-    ],
-    benefits: [
-      { title: 'Zero-code content updates', desc: 'Marketing teams adjust web text records instantly without code releases.' }
-    ],
-    techStack: ['Sanity.io', 'Strapi', 'WordPress', 'GraphQL', 'PHP'],
-    process: [
-      { id: '01', title: 'Content Schema design', desc: 'Structuring fields, rich text properties, and image upload directories.' }
-    ],
-    faq: [
-      { q: 'Why do you recommend Headless CMS?', a: 'It separates your data files from UI layouts, allowing page speeds to remain ultra-fast.' }
-    ],
-    widget: <CMSEditorVisual />
-  },
-  'seo': {
-    title: 'SEO (Search Engine Optimization)',
-    tagline: 'Site Audits, Lighthouse Optimizations, and Rank-LD Schema Blueprints',
-    icon: <Search className="w-8 h-8 text-blue-400" />,
-    color: '#6366F1',
-    glowColor: 'rgba(99,102,241,0.15)',
-    overview: 'Technical audits cleaning up slow resources, optimizing meta configurations, indexing web pages, and boosting search engine listing visibility.',
-    image: 'https://images.unsplash.com/photo-1571721795195-a2ca2d33e402?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'SEO Schema markup injections', desc: 'Structuring JSON-LD files so Google robots parse site values correctly.' },
-      { title: 'Lighthouse Performance scoring', desc: 'Reaching green score columns to secure search engine placement.' }
-    ],
-    benefits: [
-      { title: 'Free Organic Leads generation', desc: 'High web rankings direct search traffic to your platform without ad budgets.' }
-    ],
-    techStack: ['Lighthouse', 'Schema.org', 'SEMrush', 'Google Search Console'],
-    process: [
-      { id: '01', title: 'Performance Audits', desc: 'Evaluating CSS blocking resources, slow image payloads, and redirects.' }
-    ],
-    faq: [
-      { q: 'How long until we see ranking improvements?', a: 'Technical indexing adjustments usually show search updates within 2 to 4 weeks.' }
-    ],
-    widget: <SEORankVisual />
-  },
-  'digital-marketing': {
-    title: 'Digital Marketing',
-    tagline: 'Target Ads Campaigns, Leads Ingestion Funnels, and CPC ROI Optimizers',
-    icon: <BarChart2 className="w-8 h-8 text-cyan-400" />,
-    color: '#35D0FF',
-    glowColor: 'rgba(53,208,255,0.15)',
-    overview: 'Formulating campaigns, structuring demographic funnels, monitoring analytics data, and boosting ad click actions.',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'ROI Demographics tracking', desc: 'Directing budgets to converting age, location, and interest brackets.' },
-      { title: 'Landing Page visual audits', desc: 'A/B testing text versions and button highlights to maximize conversions.' }
-    ],
-    benefits: [
-      { title: 'Controlled ad spends levels', desc: 'Reduce marketing CPC metrics by targeting only ready-to-buy consumers.' }
-    ],
-    techStack: ['Google Ads', 'Meta Manager', 'GA4', 'HubSpot'],
-    process: [
-      { id: '01', title: 'A/B Test plans setup', desc: 'Deploying tracking scripts, preparing test media files, and launching runs.' }
-    ],
-    faq: [
-      { q: 'How do you measure conversion success?', a: 'We track clicks leading directly to completed checkout confirmation events.' }
-    ],
-    widget: <MarketingCalculatorVisual />
-  },
-  'web-hosting-cloud': {
-    title: 'Web Hosting & Cloud',
-    tagline: 'Docker Container blue-prints, Scalable Kubernetes Nodes, and VPC Routers',
-    icon: <Cloud className="w-8 h-8 text-blue-400" />,
-    color: '#6366F1',
-    glowColor: 'rgba(99,102,241,0.15)',
-    overview: 'Container cloud platforms, load balanced backend pools, SRE metrics monitoring setups, and automatic node scaling configurations.',
-    image: 'https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'Terraform IaC configuration sheets', desc: 'Defining cloud network links in files for reproducible deployment setups.' },
-      { title: 'Kubernetes Pod orchestrators', desc: 'Managing Docker containers, replicating nodes during traffic spikes.' }
-    ],
-    benefits: [
-      { title: '99.99% Server Uptime stability', desc: 'Multi-zone setups automatically route traffic if local servers fail.' }
-    ],
-    techStack: ['AWS', 'GCP', 'Docker', 'Kubernetes', 'Terraform'],
-    process: [
-      { id: '01', title: 'Network zoning design', desc: 'Setting firewall settings, open port boundaries, and database subnet blocks.' }
-    ],
-    faq: [
-      { q: 'Do you manage monthly cloud maintenance?', a: 'Yes, we perform system upgrades, monitor security, and optimization runs.' }
-    ],
-    widget: <CloudDeployVisual />
-  },
-  'business-automation': {
-    title: 'Business Automation',
-    tagline: 'Multi-webhook n8n pipelines, ML workflow bots, and Slack sync scripts',
-    icon: <Cpu className="w-8 h-8 text-purple-400" />,
-    color: '#a78bfa',
-    glowColor: 'rgba(167,139,250,0.15)',
-    overview: 'Automated data workflows saving manual employee hours. Sync databases, classify emails, and alert ops logs automatically.',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80',
-    features: [
-      { title: 'n8n workflow logic diagrams', desc: 'Designing steps triggering subsequent actions based on database values.' },
-      { title: 'Intelligent AI LLM classification', desc: 'AI models reading support logs, routing alerts to proper teams.' }
-    ],
-    benefits: [
-      { title: 'Drastic work hours savings', desc: 'Replace manual file copy tasks with immediate API triggers.' }
-    ],
-    techStack: ['n8n', 'Python', 'Zapier', 'Webhooks', 'LangChain'],
-    process: [
-      { id: '01', title: 'Workflow audit review', desc: 'Listing daily tasks, finding logic patterns, and scoping integrations.' }
-    ],
-    faq: [
-      { q: 'Is private user data secure in automations?', a: 'Yes, we encrypt all authentication tokens and host pipelines locally on secure VPN nodes.' }
-    ],
-    widget: <AutomationTracerVisual />
-  }
+// ── ICON MAP FOR HEADER ──
+const ICON_MAP = {
+  'graphics-web-designing': <PenTool className="w-8 h-8 text-cyan-400" />,
+  'ui-ux-design-prototyping': <Layout className="w-8 h-8 text-purple-400" />,
+  'web-development': <Terminal className="w-8 h-8 text-cyan-400" />,
+  'mobile-app-development': <Smartphone className="w-8 h-8 text-cyan-400" />,
+  'software-engineering': <Database className="w-8 h-8 text-blue-400" />,
+  'ecommerce-development': <Globe className="w-8 h-8 text-purple-400" />,
+  'cms-development': <Layers className="w-8 h-8 text-cyan-400" />,
+  'seo': <Search className="w-8 h-8 text-blue-400" />,
+  'digital-marketing': <BarChart2 className="w-8 h-8 text-cyan-400" />,
+  'web-hosting-cloud': <Cloud className="w-8 h-8 text-blue-400" />,
+  'business-automation': <Cpu className="w-8 h-8 text-purple-400" />
+}
+
+// ── WIDGET MAP FOR SIMULATION ──
+const WIDGET_MAP = {
+  'graphics-web-designing': <GraphicsBlobVisual />,
+  'ui-ux-design-prototyping': <UIUXPrototypeVisual />,
+  'web-development': <WebTerminalVisual />,
+  'mobile-app-development': <MobilePhoneVisual />,
+  'software-engineering': <SoftwareNodesVisual />,
+  'ecommerce-development': <EcommerceBasketVisual />,
+  'cms-development': <CMSEditorVisual />,
+  'seo': <SEORankVisual />,
+  'digital-marketing': <MarketingCalculatorVisual />,
+  'web-hosting-cloud': <CloudDeployVisual />,
+  'business-automation': <AutomationTracerVisual />
 }
 
 // ── SERVICE DETAIL COMPONENT ──
 export default function ServiceDetail() {
-  const { serviceId } = useParams()
-  const service = SERVICES_DATA[serviceId] || SERVICES_DATA['web-development']
+  const { slug } = useParams()
+  const { openModal } = useContactModal()
+  
+  // Resolve service details from Central Data file
+  const service = servicesData.find(s => s.slug === slug) || servicesData[2] // Fallback to web-dev
   const [activeFaq, setActiveFaq] = useState(null)
   
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [serviceId])
+  }, [slug])
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: PRIMARY_BG, color: '#fff', overflowX: 'hidden' }}>
@@ -874,7 +638,7 @@ export default function ServiceDetail() {
       <section className="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden z-10">
         
         {/* Glow Spheres */}
-        <div className="ambient-glow -top-32 -left-20" style={{ background: `radial-gradient(circle, ${service.glowColor} 0%, transparent 70%)` }} />
+        <div className="ambient-glow -top-32 -left-20" style={{ background: `radial-gradient(circle, ${service.glowColor || 'rgba(34,211,238,0.1)'} 0%, transparent 70%)` }} />
         <div className="ambient-glow bottom-0 -right-20" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)' }} />
 
         {/* Floating Bubble particles */}
@@ -914,7 +678,7 @@ export default function ServiceDetail() {
             <div className="lg:col-span-7 space-y-6 text-left">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.02)]">
-                  {service.icon}
+                  {ICON_MAP[service.slug]}
                 </div>
                 <span className="text-xs font-extrabold uppercase tracking-[0.25em] text-cyan-400 font-mono">Service Details</span>
               </div>
@@ -933,23 +697,20 @@ export default function ServiceDetail() {
 
               <div className="flex flex-wrap gap-4 pt-2">
                 <button 
-                  onClick={() => {
-                    const el = document.getElementById('interactive-playground')
-                    if (el) el.scrollIntoView({ behavior: 'smooth' })
-                  }}
+                  onClick={openModal}
                   className="py-3.5 px-6 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-purple-600 hover:brightness-110 shadow-[0_4px_20px_rgba(34,211,238,0.25)] active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  Launch Live Demo
+                  Start Project
                   <ArrowRight size={14} />
                 </button>
                 <button 
                   onClick={() => {
-                    const el = document.getElementById('contact')
+                    const el = document.getElementById('interactive-playground')
                     if (el) el.scrollIntoView({ behavior: 'smooth' })
                   }}
                   className="py-3.5 px-6 rounded-xl font-bold text-sm border border-white/10 bg-white/5 hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-white"
                 >
-                  Start Project
+                  Explore Interactive Demo
                 </button>
               </div>
             </div>
@@ -967,7 +728,7 @@ export default function ServiceDetail() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent opacity-85" />
                 <div className="absolute bottom-6 left-6 right-6 text-left">
                   <div className="text-xs text-slate-500 uppercase tracking-widest font-mono mb-1">Production Asset</div>
-                  <div className="text-sm font-bold text-white font-sans">{service.title} Mockup</div>
+                  <div className="text-sm font-bold text-white font-sans">{service.title} Model</div>
                 </div>
               </div>
             </div>
@@ -1051,7 +812,7 @@ export default function ServiceDetail() {
                   <span className="text-[9px] font-semibold text-cyan-400 font-mono">Simulator Active</span>
                 </div>
                 
-                {service.widget}
+                {WIDGET_MAP[service.slug]}
               </div>
             </div>
 
@@ -1099,7 +860,7 @@ export default function ServiceDetail() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative text-left">
             {service.process.map((p, idx) => (
-              <div key={p.id} className="space-y-4 relative">
+              <div key={idx} className="space-y-4 relative">
                 
                 {/* Node Line connecting on desktop */}
                 {idx < 3 && (
@@ -1141,7 +902,7 @@ export default function ServiceDetail() {
                 >
                   <button 
                     onClick={() => setActiveFaq(isOpen ? null : idx)}
-                    className="w-full flex justify-between items-center p-5 text-left font-bold text-sm sm:text-base text-white hover:text-cyan-400 transition-colors cursor-pointer"
+                    className="w-full flex justify-between items-center p-5 text-left font-bold text-sm sm:text-base text-white hover:text-cyan-400 transition-colors cursor-pointer select-none"
                   >
                     <span>{item.q}</span>
                     <ChevronDown 

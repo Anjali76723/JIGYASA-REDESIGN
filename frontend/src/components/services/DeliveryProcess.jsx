@@ -1,172 +1,188 @@
-import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle, ArrowRight, Zap, Target, Search, PenTool, Terminal, Shield, Award } from 'lucide-react'
+import { useRef } from 'react'
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { Search, PenTool, Terminal, Shield, Zap, Award, Check } from 'lucide-react'
 
 const FONT = 'Space Grotesk, Inter, system-ui'
 
 const STEPS = [
   {
     num: '01',
-    title: 'Discovery & Strategy',
-    icon: <Search className="w-5 h-5 text-cyan-400" />,
+    phase: 'Discovery',
+    title: 'Strategy & Mapping',
     desc: 'We research market trends, map your business workflows, define functional scopes, and design the software architecture roadmap.',
-    deliverables: ['Business Flow Diagrams', 'Scope of Work Blueprint', 'Architecture Map'],
+    deliverables: ['Workflow Diagrams', 'Scope of Work Blueprint', 'Architecture Map'],
+    icon: <Search className="w-5 h-5 text-cyan-400" />,
     color: '#22D3EE'
   },
   {
     num: '02',
-    title: 'Design & Prototype',
+    phase: 'Design',
+    title: 'High-Fidelity Mockups & Prototypes',
+    desc: 'Creating interactive Figma visual layouts and responsive layout sheets to validate client usability and aesthetic alignment.',
+    deliverables: ['Clickable Prototype', 'Design Token System', 'Component Style Guide'],
     icon: <PenTool className="w-5 h-5 text-purple-400" />,
-    desc: 'Creating high-fidelity UI layout files and clickable interactive mockups in Figma to validate usability and visual aesthetics.',
-    deliverables: ['Clickable Figma Prototype', 'Design Token System', 'Component Style Guide'],
     color: '#a78bfa'
   },
   {
     num: '03',
-    title: 'Agile Development',
+    phase: 'Development',
+    title: 'Agile Coding & Staging',
+    desc: 'We compile clean, fully tested and typed code. We schedule weekly staging updates so you can test features in real sprint iterations.',
+    deliverables: ['Live Staging Server Builds', 'API Documentation', 'Clean Git Repository'],
     icon: <Terminal className="w-5 h-5 text-cyan-400" />,
-    desc: 'We write fully tested, typed, and scalable code in short sprints, deploying staging versions frequently to receive feedback.',
-    deliverables: ['Staging Server Builds', 'API Documentation', 'Clean Code Repository'],
-    color: '#22d3ee'
+    color: '#22D3EE'
   },
   {
     num: '04',
-    title: 'Testing & QA',
-    icon: <Shield className="w-5 h-5 text-purple-400" />,
+    phase: 'Testing',
+    title: 'QA, Speed & Security Auditing',
     desc: 'Exhaustive verification loops assessing security keys, speed bottlenecks, Lighthouse scores, and database indexing.',
     deliverables: ['Security Audit Logs', 'Speed Performance Scores', 'QA Testing Report'],
+    icon: <Shield className="w-5 h-5 text-purple-400" />,
     color: '#a78bfa'
   },
   {
     num: '05',
-    title: 'Deployment & Launch',
-    icon: <Zap className="w-5 h-5 text-cyan-400" />,
-    desc: 'Deploying containerized pods on AWS/GCP clusters, configuring SSL certifications, and routing domains safely.',
+    phase: 'Deployment',
+    title: 'Cloud Cluster Orchestration',
+    desc: 'Deploying containerized pods on AWS/GCP clusters, configuring SSL certifications, and routing domain channels safely.',
     deliverables: ['Docker / Kubernetes Configs', 'Cloud VPC Settings', 'Production Release'],
-    color: '#22d3ee'
+    icon: <Zap className="w-5 h-5 text-cyan-400" />,
+    color: '#22D3EE'
   },
   {
     num: '06',
-    title: 'Support & Growth',
-    icon: <Award className="w-5 h-5 text-purple-400" />,
-    desc: 'Post-launch operations, server budget optimizations, regular feature updates, and database indexing audits.',
+    phase: 'Support',
+    title: 'Post-Launch Tuning & SRE Monitoring',
+    desc: 'Post-launch operations, server budget optimizations, regular security upgrades, and database index audits.',
     deliverables: ['SRE Server Monitoring', 'Code Maintenance Logs', 'Next Roadmap Plan'],
+    icon: <Award className="w-5 h-5 text-purple-400" />,
     color: '#a78bfa'
   }
 ]
 
 export default function DeliveryProcess() {
-  const [activeStep, setActiveStep] = useState(0)
+  const containerRef = useRef(null)
+  
+  // Track scroll progress of this container
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  })
+
+  // Smooth scroll line progress
+  const scaleY = useSpring(scrollYProgress, { stiffness: 80, damping: 25 })
 
   return (
-    <div className="relative w-full py-24 border-t border-white/5" style={{ backgroundColor: '#050816' }}>
-      
-      {/* Background decorations */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+    <div 
+      ref={containerRef}
+      className="relative w-full py-32 border-t border-white/5 overflow-hidden" 
+      style={{ backgroundColor: '#050816' }}
+    >
+      {/* Background glowing blob */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 font-mono">01 / Our Blueprint</span>
-          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight" style={{ fontFamily: FONT }}>
-            The Delivery Process
+        <div className="text-center max-w-3xl mx-auto mb-28 space-y-4">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-cyan-400 font-mono">02 / Execution Roadmap</span>
+          <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight" style={{ fontFamily: FONT }}>
+            Delivery Process
           </h2>
           <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-            How we translate abstract concepts into production-grade systems in 6 linear steps.
+            How we translate abstract business rules into high-value production systems.
           </p>
         </div>
 
         {/* Timeline Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="relative max-w-4xl mx-auto">
           
-          {/* Left panel: Interactive Step Cards */}
-          <div className="lg:col-span-6 space-y-4 text-left">
+          {/* Vertical Track lines (Desktop) */}
+          <div className="absolute left-4 md:left-1/2 top-4 bottom-4 w-0.5 bg-white/5 -translate-x-1/2 z-0" />
+          
+          {/* Glowing animated line fill */}
+          <motion.div 
+            style={{ scaleY, originY: 0 }}
+            className="absolute left-4 md:left-1/2 top-4 bottom-4 w-0.5 bg-gradient-to-b from-cyan-400 via-purple-500 to-transparent -translate-x-1/2 z-0"
+          />
+
+          {/* Steps List */}
+          <div className="space-y-20 relative z-10">
             {STEPS.map((step, idx) => {
-              const isActive = activeStep === idx
+              const isEven = idx % 2 === 0
+              
               return (
-                <div 
-                  key={idx}
-                  onClick={() => setActiveStep(idx)}
-                  className={`p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${isActive ? 'border-cyan-500/30 bg-[#121b2d]/60 shadow-[0_15px_40px_rgba(34,211,238,0.06)]' : 'border-white/5 bg-[#121b2d]/10 hover:bg-white/[0.02]'}`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <span className={`w-8 h-8 rounded-lg flex items-center justify-center font-mono font-bold text-xs ${isActive ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-400/20 shadow-[0_0_10px_rgba(34,211,238,0.2)]' : 'bg-white/5 text-slate-400 border border-white/5'}`}>
-                        {step.num}
-                      </span>
-                      <h3 className={`text-base sm:text-lg font-bold ${isActive ? 'text-white' : 'text-slate-300'}`}>{step.title}</h3>
-                    </div>
-                    {isActive ? <Zap size={14} className="text-cyan-400 animate-pulse" /> : null}
+                <div key={idx} className={`flex flex-col md:flex-row items-stretch justify-center relative w-full ${isEven ? 'md:flex-row-reverse' : ''}`}>
+                  
+                  {/* Visual Node Dot */}
+                  <div className="absolute left-4 md:left-1/2 top-6 -translate-x-1/2 z-20 flex items-center justify-center">
+                    <motion.div 
+                      initial={{ scale: 0.8, opacity: 0.5 }}
+                      whileInView={{ scale: 1.2, opacity: 1 }}
+                      viewport={{ once: false, margin: "-100px" }}
+                      className="w-8 h-8 rounded-full bg-slate-950 border-2 flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.8)]"
+                      style={{ borderColor: step.color }}
+                    >
+                      <span className="text-[10px] font-bold font-mono text-white">{step.num}</span>
+                    </motion.div>
                   </div>
 
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.div 
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden mt-3"
-                      >
-                        <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-4">{step.desc}</p>
-                        
-                        <div className="space-y-1.5 border-t border-white/5 pt-3">
-                          <div className="text-[9px] text-slate-500 uppercase tracking-widest font-extrabold font-mono">Deliverables</div>
+                  {/* Left spacer for desktop */}
+                  <div className="hidden md:block w-1/2" />
+
+                  {/* Card wrapper */}
+                  <div className="w-full md:w-1/2 pl-12 md:pl-0 md:px-8 text-left">
+                    <motion.div
+                      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true, margin: "-80px" }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                      whileHover={{ y: -4 }}
+                      className="p-6 sm:p-8 rounded-2xl border border-white/5 bg-[#121B2D]/40 backdrop-blur-md hover:border-cyan-500/20 transition-all duration-300 relative group shadow-xl"
+                    >
+                      {/* Highlight border sweep */}
+                      <div className="absolute top-0 left-0 w-full h-full rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        style={{ background: 'radial-gradient(ellipse at top left, rgba(53,208,255,0.03), transparent 60%)' }} />
+
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-white">
+                            {step.icon}
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-bold font-mono tracking-widest uppercase" style={{ color: step.color }}>
+                              {step.phase} Phase
+                            </span>
+                            <h3 className="text-lg sm:text-xl font-bold text-white leading-tight">{step.title}</h3>
+                          </div>
+                        </div>
+
+                        <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                          {step.desc}
+                        </p>
+
+                        <div className="border-t border-white/5 pt-4 mt-2">
+                          <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest block mb-2 font-mono">Outputs</span>
                           <div className="flex flex-wrap gap-2">
                             {step.deliverables.map((del, i) => (
-                              <span key={i} className="py-1 px-3 rounded-full border border-white/5 bg-slate-950/40 text-[10px] text-slate-300 font-semibold">{del}</span>
+                              <span 
+                                key={i} 
+                                className="py-1 px-3 rounded-full border border-white/5 bg-slate-950/60 text-[10px] text-slate-300 font-semibold flex items-center gap-1.5"
+                              >
+                                <Check size={8} style={{ color: step.color }} />
+                                {del}
+                              </span>
                             ))}
                           </div>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  </div>
+
                 </div>
               )
             })}
-          </div>
-
-          {/* Right panel: Curved Animated Light Graph */}
-          <div className="lg:col-span-6 relative">
-            <div className="rounded-3xl border border-white/8 bg-[#0b1023]/40 backdrop-blur-xl p-6 sm:p-8 relative min-h-[460px] flex flex-col justify-between">
-              
-              {/* Decorative line */}
-              <div className="absolute left-[38px] top-[40px] bottom-[40px] w-0.5 bg-gradient-to-b from-cyan-400 via-purple-500 to-transparent" />
-
-              <div className="space-y-8 z-10 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/8">
-                    {STEPS[activeStep].icon}
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold font-mono">Active Workflow Stage</span>
-                    <h4 className="text-xl font-bold text-white">{STEPS[activeStep].title}</h4>
-                  </div>
-                </div>
-
-                <div className="p-5 rounded-2xl border border-white/5 bg-slate-950/40 space-y-4">
-                  <div className="text-xs leading-relaxed text-slate-400">
-                    "{STEPS[activeStep].desc}"
-                  </div>
-
-                  <div className="space-y-2 border-t border-white/5 pt-4">
-                    <div className="text-[9px] text-slate-500 uppercase tracking-widest font-bold font-mono">Stage Output Blueprints</div>
-                    {STEPS[activeStep].deliverables.map((del, idx) => (
-                      <div key={idx} className="flex items-center gap-2.5 text-xs text-cyan-400 font-semibold">
-                        <CheckCircle size={12} />
-                        <span>{del}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-[10px] text-slate-500 flex justify-between items-center border-t border-white/5 pt-4 font-mono">
-                <span>Phase ID: RUN_PHASE_{STEPS[activeStep].num}</span>
-                <span>Active: 100% Verified</span>
-              </div>
-            </div>
           </div>
 
         </div>

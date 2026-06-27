@@ -32,7 +32,7 @@ function AppInner() {
         <Route path="/"            element={<Home />}       />
         <Route path="/about"       element={<About />}      />
         <Route path="/services"    element={<Services />}   />
-        <Route path="/services/:serviceId" element={<ServiceDetail />} />
+        <Route path="/services/:slug" element={<ServiceDetail />} />
         <Route path="/work/:slug"  element={<CaseStudy />}  />
         <Route path="/portfolio"   element={<Portfolio />}  />
         <Route path="/learn-more"  element={<LearnMore />}  />
