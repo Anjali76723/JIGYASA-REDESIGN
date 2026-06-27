@@ -710,7 +710,7 @@ export default function ServiceDetail() {
                   }}
                   className="py-3.5 px-6 rounded-xl font-bold text-sm border border-white/10 bg-white/5 hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-white"
                 >
-                  Explore Interactive Demo
+                  Explore Sandbox Simulator
                 </button>
               </div>
             </div>

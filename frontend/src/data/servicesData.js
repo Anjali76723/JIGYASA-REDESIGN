@@ -207,7 +207,7 @@ export const servicesData = [
     title: 'SEO',
     tagline: 'Site Audits, Lighthouse Optimizations, and Rank-LD Schema Blueprints',
     overview: 'Technical audits cleaning up slow resources, optimizing meta configurations, indexing web pages, and boosting search engine listing visibility.',
-    image: 'https://images.unsplash.com/photo-1571721795195-a2ca2d33e402?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
     tags: ['Lighthouse', 'Schema.org', 'SEMrush', 'Search Console'],
     keyDeliverables: [
       'Site audits',
@@ -294,7 +294,7 @@ export const servicesData = [
     title: 'Business Automation',
     tagline: 'Multi-webhook n8n pipelines, ML workflow bots, and Slack sync scripts',
     overview: 'Automated data workflows saving manual employee hours. Sync databases, classify emails, and alert ops logs automatically.',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
     tags: ['n8n', 'Python', 'Zapier', 'Webhooks', 'LangChain'],
     keyDeliverables: [
       'Process mapping',

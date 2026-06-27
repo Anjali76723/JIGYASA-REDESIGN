@@ -61,8 +61,12 @@ export default function ServicesSection() {
           100% { background-position: 200% 50%; }
         }
         @keyframes floatingBlob {
-          0%, 100% { transform: translateY(0) scale(1); opacity: 0.1; }
-          50% { transform: translateY(-30px) scale(1.15); opacity: 0.25; }
+          0%, 100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.08; }
+          50% { transform: translateY(-40px) scale(1.15) rotate(180deg); opacity: 0.22; }
+        }
+        @keyframes floatingBlobSlow {
+          0%, 100% { transform: translateY(0) scale(1.1) rotate(0deg); opacity: 0.06; }
+          50% { transform: translateY(40px) scale(0.9) rotate(-180deg); opacity: 0.18; }
         }
         .header-title-gradient {
           background-image: linear-gradient(90deg, #22D3EE 0%, #6366F1 45%, #A78BFA 75%, #22D3EE 100%);
@@ -74,8 +78,8 @@ export default function ServicesSection() {
         }
         .glowing-blob {
           position: absolute;
-          width: 500px;
-          height: 500px;
+          width: 550px;
+          height: 550px;
           border-radius: 50%;
           filter: blur(140px);
           pointer-events: none;
@@ -83,6 +87,33 @@ export default function ServicesSection() {
         }
         .card-inner-glow {
           box-shadow: 0 0 30px rgba(34, 211, 238, 0.02), inset 0 0 12px rgba(255, 255, 255, 0.02);
+        }
+        .sheen-sweep {
+          position: relative;
+          overflow: hidden;
+        }
+        .sheen-sweep::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -60%;
+          width: 30%;
+          height: 200%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.04) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          transform: rotate(25deg);
+          transition: all 0.8s ease;
+          opacity: 0;
+          pointer-events: none;
+        }
+        .group:hover .sheen-sweep::after {
+          left: 120%;
+          opacity: 1;
+          transition: all 1.2s ease-out;
         }
       `}</style>
 
@@ -94,8 +125,9 @@ export default function ServicesSection() {
         style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'200\' height=\'200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundSize: '200px' }} />
 
       {/* Floating Aurora blobs */}
-      <div className="glowing-blob -top-24 -left-20 bg-cyan-500 animate-[floatingBlob_10s_ease-in-out_infinite]" />
-      <div className="glowing-blob bottom-24 -right-20 bg-purple-600 animate-[floatingBlob_12s_ease-in-out_infinite]" style={{ animationDelay: '3s' }} />
+      <div className="glowing-blob -top-24 -left-20 bg-cyan-500/30 animate-[floatingBlob_12s_ease-in-out_infinite]" />
+      <div className="glowing-blob top-[40%] right-[-100px] bg-purple-600/25 animate-[floatingBlobSlow_15s_ease-in-out_infinite]" style={{ animationDelay: '2.5s' }} />
+      <div className="glowing-blob bottom-24 -left-20 bg-indigo-500/20 animate-[floatingBlob_18s_ease-in-out_infinite]" style={{ animationDelay: '5s' }} />
 
       {/* Mouse spotlight overlay */}
       <div 
@@ -149,7 +181,7 @@ export default function ServicesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative rounded-3xl border border-white/8 bg-[#121B2D]/40 backdrop-blur-xl hover:border-cyan-500/30 hover:shadow-[0_20px_50px_rgba(34,211,238,0.06)] transition-all duration-500 flex flex-col justify-between overflow-hidden p-2 min-h-[500px] card-inner-glow"
+                className="group relative rounded-3xl border border-white/8 bg-[#121B2D]/40 backdrop-blur-xl hover:border-cyan-500/30 hover:shadow-[0_20px_50px_rgba(34,211,238,0.06)] transition-all duration-500 flex flex-col justify-between overflow-hidden p-2 min-h-[500px] card-inner-glow sheen-sweep"
               >
                 
                 {/* Visual Thumbnail */}
@@ -157,7 +189,7 @@ export default function ServicesSection() {
                   <img 
                     src={service.image} 
                     alt={service.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1000ms] ease-out"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0b1023] via-transparent to-transparent opacity-90" />

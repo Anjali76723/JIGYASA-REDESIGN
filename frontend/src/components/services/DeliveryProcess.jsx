@@ -79,8 +79,19 @@ export default function DeliveryProcess() {
       className="relative w-full py-32 border-t border-white/5 overflow-hidden" 
       style={{ backgroundColor: '#050816' }}
     >
+      {/* Dynamic keyframe for floating blob */}
+      <style>{`
+        @keyframes floatingBlobProcess {
+          0%, 100% { transform: translate(-50%, 0) scale(1); opacity: 0.05; }
+          50% { transform: translate(-45%, -20px) scale(1.1); opacity: 0.15; }
+        }
+      `}</style>
+      
       {/* Background glowing blob */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+      <div 
+        className="absolute top-1/4 left-1/2 w-[550px] h-[550px] bg-cyan-500 rounded-full blur-[130px] pointer-events-none animate-[floatingBlobProcess_12s_ease-in-out_infinite]"
+        style={{ transform: 'translateX(-50%)' }}
+      />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
