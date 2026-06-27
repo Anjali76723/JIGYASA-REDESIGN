@@ -25,43 +25,7 @@ function Field({ label, id, name, type = 'text', placeholder, required, value, o
   )
 }
 
-function SelectField({ label, id, name, options, required, value, onChange, error, className = '' }) {
-  return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label htmlFor={id} className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-        {label} {required && <span className="text-cyan-400">*</span>}
-      </label>
-      <div className="relative">
-        <select
-          id={id}
-          name={name || id}
-          required={required}
-          value={value}
-          onChange={onChange}
-          className={`w-full rounded-2xl bg-white/5 border px-4 py-3 text-sm text-white outline-none appearance-none cursor-pointer transition-all duration-200 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 hover:border-white/20 ${
-            error ? 'border-red-400/60 focus:border-red-400' : 'border-white/10'
-          }`}
-          style={{ backgroundColor: '#0c1528' }}
-        >
-          <option value="" disabled className="text-slate-500 bg-[#0c1528]">
-            Select an option
-          </option>
-          {options.map((o) => (
-            <option key={o} value={o} className="bg-[#0c1528] text-white">
-              {o}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-400">
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </div>
-      {error && <span className="text-xs text-red-400 mt-1">{error}</span>}
-    </div>
-  )
-}
+
 
 /* ── Toast Component ── */
 function Toast({ visible, type, message, onClose }) {
@@ -139,8 +103,6 @@ function FormBody({ onSuccess }) {
     name: '',
     email: '',
     phone: '',
-    company: '',
-    budget: '',
     service: '',
     message: '',
   }
@@ -152,17 +114,6 @@ function FormBody({ onSuccess }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors((prev) => {
-        const nextErrs = { ...prev }
-        delete nextErrs[name]
-        return nextErrs
-      })
-    }
-  }
-
-  const handleSelectChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
     if (errors[name]) {
       setErrors((prev) => {
@@ -194,12 +145,8 @@ function FormBody({ onSuccess }) {
       }
     }
 
-    if (!formData.budget) {
-      newErrors.budget = 'Please select a budget range'
-    }
-
-    if (!formData.service) {
-      newErrors.service = 'Please select a project service type'
+    if (!formData.service.trim()) {
+      newErrors.service = 'Interested service is required'
     }
 
     if (!formData.message.trim()) {
@@ -301,42 +248,19 @@ function FormBody({ onSuccess }) {
             id="modal-phone"
             name="phone"
             type="tel"
-            placeholder="+91 98765 43210"
+            placeholder="+91 98765 43210 (optional)"
             value={formData.phone}
             onChange={handleChange}
             error={errors.phone}
           />
           <Field
-            label="Company Name"
-            id="modal-company"
-            name="company"
-            placeholder="Acme Corp"
-            value={formData.company}
-            onChange={handleChange}
-            error={errors.company}
-          />
-        </div>
-
-        {/* Row 3 */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <SelectField
-            label="Project Budget"
-            id="modal-budget"
-            name="budget"
-            options={['Below $5k', '$5k – $20k', '$20k – $50k', '$50k+']}
-            required
-            value={formData.budget}
-            onChange={(e) => handleSelectChange('budget', e.target.value)}
-            error={errors.budget}
-          />
-          <SelectField
-            label="Project Type"
-            id="modal-projectType"
+            label="Interested Service"
+            id="modal-service"
             name="service"
-            options={['Web App', 'Mobile App', 'UI/UX Design', 'AI Solution', 'Cloud Solution']}
+            placeholder="e.g. Web App, AI Solution"
             required
             value={formData.service}
-            onChange={(e) => handleSelectChange('service', e.target.value)}
+            onChange={handleChange}
             error={errors.service}
           />
         </div>
